@@ -263,11 +263,11 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
         RelativeLayout.LayoutParams headerParams = (LayoutParams) mHeader.getLayoutParams();
         headerParams.addRule(RelativeLayout.ABOVE, R.id.xpull_to_refresh_content_wrapper);
-        addViewInternal(mHeader, headerParams);
+        addViewInternal(mHeader, 0, headerParams);
 
         RelativeLayout.LayoutParams footerParams = (LayoutParams) mFooter.getLayoutParams();
         headerParams.addRule(RelativeLayout.BELOW, R.id.xpull_to_refresh_content_wrapper);
-        addViewInternal(mFooter, footerParams);
+        addViewInternal(mFooter, -1, footerParams);
     }
 
     // NestedParent
@@ -648,7 +648,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         DebugLogger.d(TAG, "header height : " + mHeaderHeight);
         DebugLogger.d(TAG, "footer height : " + mFooterHeight);
 
-        setPadding(0, -mHeaderHeight, 0, -mFooterHeight);
+//        setPadding(0, -mHeaderHeight, 0, -mFooterHeight);
 
         if (mContent != null) {
             /*
