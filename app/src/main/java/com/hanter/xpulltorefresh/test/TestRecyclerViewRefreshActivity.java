@@ -80,7 +80,7 @@ public class TestRecyclerViewRefreshActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return 60;
+            return 0;
         }
     }
 

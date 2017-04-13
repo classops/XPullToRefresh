@@ -2,12 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/XPullToRefresh/xpulltorefresh.iml" filepath="$PROJECT_DIR$/XPullToRefresh/xpulltorefresh.iml" />
+      <module fileurl="file://$PROJECT_DIR$/XPullToRefreshDemo.iml" filepath="$PROJECT_DIR$/XPullToRefreshDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/XPullToRefreshDemo.iml" filepath="$PROJECT_DIR$/XPullToRefreshDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/XPullToRefreshDemo.iml" filepath="$PROJECT_DIR$/XPullToRefreshDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/xpulltorefresh/xpulltorefresh.iml" filepath="$PROJECT_DIR$/xpulltorefresh/xpulltorefresh.iml" />
-      <module fileurl="file://$PROJECT_DIR$/xpulltorefresh.iml" filepath="$PROJECT_DIR$/xpulltorefresh.iml" />
-      <module fileurl="file://$PROJECT_DIR$/xpulltorefresh/xpulltorefresh.iml" filepath="$PROJECT_DIR$/xpulltorefresh/xpulltorefresh.iml" />
     </modules>
   </component>
 </project>

@@ -1,1 +1,1 @@
-include ':app', ':xpulltorefresh'
+include ':app', ':XPullToRefresh'

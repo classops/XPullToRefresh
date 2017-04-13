@@ -163,7 +163,6 @@ public class PullToRefreshLayout extends LinearLayout implements NestedScrolling
         }
 
         /*
-
         if (mContent instanceof NestedScrollView) {
             NestedScrollView content = (NestedScrollView) mContent;
             mRefreshStateCalculator = new NestedScrollViewCalculator(this, content);
