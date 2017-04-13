@@ -14,8 +14,11 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
+import com.goldenhanter.testglide.xpulltorefresh.R;
 import com.hanter.xpulltorefresh.calculator.Calculator;
 
 /**
@@ -26,7 +29,7 @@ import com.hanter.xpulltorefresh.calculator.Calculator;
  * @author wangmingshuo
  * @version 1.0
  */
-public class PullToRefreshLayout extends LinearLayout implements NestedScrollingParent {
+public class PullToRefreshLayout extends RelativeLayout implements NestedScrollingParent {
 
     private static final String TAG = "PullToRefreshLayout";
 
@@ -58,9 +61,12 @@ public class PullToRefreshLayout extends LinearLayout implements NestedScrolling
     protected View mHeader;
     protected View mFooter;
     protected View mContent; // 实际内容视图
+    protected FrameLayout mContentWrapper;
 
     protected LoadingLayout mHeaderLayout;
     protected LoadingLayout mFooterLayout;
+
+    private boolean mAdded; // 是否添加了Header和Footer
 
     private boolean mPullDownRefreshEnabled = true; // 是否能下拉
     private boolean mPullUpRefreshEnabled = true; // 是否能上拉
@@ -130,9 +136,9 @@ public class PullToRefreshLayout extends LinearLayout implements NestedScrolling
 
         mParentHelper = new NestedScrollingParentHelper(this);
 
-        setOrientation(LinearLayout.VERTICAL);
-
         setOverScrollMode(OVER_SCROLL_NEVER);
+
+        addRefreshableView(context);
 
         mHeaderLayout = createRefreshHeaderLayout(context);
         mFooterLayout = createRefreshFooterLayout(context);
@@ -140,7 +146,18 @@ public class PullToRefreshLayout extends LinearLayout implements NestedScrolling
         mHeader = mHeaderLayout.getLoadingView();
         mFooter = mFooterLayout.getLoadingView();
 
-        addHeaderAndFooter(context);
+//        addHeaderAndFooter(context);
+    }
+
+    protected void addRefreshableView(Context context) {
+        int width = ViewGroup.LayoutParams.MATCH_PARENT;
+        int height = ViewGroup.LayoutParams.MATCH_PARENT;
+
+        // 创建一个包装容器
+        mContentWrapper = new FrameLayout(context);
+        mContentWrapper.setId(R.id.xpull_to_refresh_content_wrapper);
+
+        addViewInternal(mContentWrapper, new RelativeLayout.LayoutParams(width, height));
     }
 
     private void createScrollCalculator() {
@@ -241,24 +258,35 @@ public class PullToRefreshLayout extends LinearLayout implements NestedScrolling
 //        addViewInternal(mHeader, 0, new LayoutParams(LayoutParams.MATCH_PARENT,
 //                LayoutParams.WRAP_CONTENT));
 
-        addViewInternal(mHeader, 0, mHeader.getLayoutParams());
+        if (mAdded)
+            return;
 
-        addViewInternal(mFooter, -1, mFooter.getLayoutParams());
+        RelativeLayout.LayoutParams headerParams = (LayoutParams) mHeader.getLayoutParams();
+        headerParams.addRule(RelativeLayout.ABOVE, R.id.xpull_to_refresh_content_wrapper);
+        addViewInternal(mHeader, headerParams);
+
+        RelativeLayout.LayoutParams footerParams = (LayoutParams) mFooter.getLayoutParams();
+        headerParams.addRule(RelativeLayout.BELOW, R.id.xpull_to_refresh_content_wrapper);
+        addViewInternal(mFooter, footerParams);
     }
 
     // NestedParent
 
     @Override
     public void addView(View child, ViewGroup.LayoutParams params) {
-        addView(child, 1, params);
+        addView(child, -1, params);
+//        mContentWrapper.addView(child, params);
     }
 
     @Override
     public void addView(View child, int index, ViewGroup.LayoutParams params) {
-        super.addView(child, 1, params);
+//        super.addView(child, index, params);
+        mContentWrapper.addView(child, index, params);
 
         mContent = child;
         createScrollCalculator();
+
+        addHeaderAndFooter(getContext());
     }
 
     @Override
@@ -623,10 +651,17 @@ public class PullToRefreshLayout extends LinearLayout implements NestedScrolling
         setPadding(0, -mHeaderHeight, 0, -mFooterHeight);
 
         if (mContent != null) {
+            /*
             LayoutParams params = (LayoutParams) mContent.getLayoutParams();
             params.height = h;
             mContent.setLayoutParams(params);
             mContent.requestLayout();
+            */
+
+            LayoutParams params = (LayoutParams) mContentWrapper.getLayoutParams();
+            params.height = h;
+            mContentWrapper.setLayoutParams(params);
+            mContentWrapper.requestLayout();
         }
 
         post(new Runnable() {
