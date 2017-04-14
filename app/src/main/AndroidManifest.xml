@@ -17,6 +17,11 @@
             android:name=".test.TestRecyclerViewRefreshActivity"
             android:exported="true" >
 
+        </activity>
+        <activity
+            android:name=".test.ListViewRefreshActivity"
+            android:exported="true" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,14 +30,20 @@
 
         </activity>
         <activity
-            android:name=".test.ListViewRefreshActivity"
-            android:exported="true" />
-        <activity
             android:name=".test.WebViewRefreshActivity"
-            android:exported="true" />
+            android:exported="true" >
+
+
+
+        </activity>
         <activity
             android:name=".test.ScrollViewRefreshActivity"
-            android:exported="true" />
+            android:exported="true" >
+
+
+
+
+        </activity>
     </application>
 
 </manifest>
