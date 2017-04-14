@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/XPullToRefresh/XPullToRefresh.iml" filepath="$PROJECT_DIR$/XPullToRefresh/XPullToRefresh.iml" />
       <module fileurl="file://$PROJECT_DIR$/XPullToRefreshDemo.iml" filepath="$PROJECT_DIR$/XPullToRefreshDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/xpulltorefresh.iml" filepath="$PROJECT_DIR$/xpulltorefresh.iml" />
     </modules>
   </component>
 </project>

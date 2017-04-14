@@ -71,6 +71,8 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
     private boolean mAdded; // 是否添加了Header和Footer
 
+    private boolean mResetTouch = false;
+
     private boolean mPullDownRefreshEnabled = true; // 是否能下拉
     private boolean mPullUpRefreshEnabled = true; // 是否能上拉
     private boolean mScrollUpLoadEnabled = false; // TODO 滚动加载
@@ -441,6 +443,17 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     }
 
     @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (mResetTouch) {
+            mResetTouch = false;
+            super.dispatchTouchEvent(ev);
+            return false;
+        } else {
+            return super.dispatchTouchEvent(ev);
+        }
+    }
+
+    @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         if (mNestedScroll) { // 内嵌滚动，则默认处理
             return super.onInterceptTouchEvent(event);
@@ -448,6 +461,12 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
             int action = event.getActionMasked();
 
             // 一直处理事件，直到手指抬起
+
+            DebugLogger.d("onInterceptTouchEvent", MotionEvent.actionToString(action));
+
+            if (action != MotionEvent.ACTION_DOWN && mIsHandledTouchEvent) {
+                return true;
+            }
 
             switch (action) {
                 case MotionEvent.ACTION_DOWN:
@@ -458,10 +477,6 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
                 case MotionEvent.ACTION_MOVE:
 
                     DebugLogger.d("onInterceptTouchEvent", "ACTION_MOVE, mIsHandledTouchEvent: " + mIsHandledTouchEvent);
-
-                    if (mIsHandledTouchEvent) {
-                        return true;
-                    }
 
                     final int y = (int) (event.getY() + 0.5f);
                     final int dy = mLastTouchY - y;
@@ -495,9 +510,12 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
                             // 如果截断事件，我们则仍然把这个事件交给刷新View去处理，典型的情况是让ListView/GridView将按下
                             // Child的Selector隐藏
+
+                            /*
                             if (mIsHandledTouchEvent) {
                                 mContent.onTouchEvent(event);
                             }
+                            */
 
                         } else if (isPullLoadEnabled() && isTargetEnd()) {
 
@@ -515,14 +533,12 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
-                    DebugLogger.d("onInterceptTouchEvent", "ACTION_UP, mIsHandledTouchEvent: " + mIsHandledTouchEvent);
-                    mIsHandledTouchEvent = false;
+//                    DebugLogger.d("onInterceptTouchEvent", "ACTION_UP, mIsHandledTouchEvent: " + mIsHandledTouchEvent);
+//                    mIsHandledTouchEvent = false;
                     break;
 
                 default:
-                    if (mIsHandledTouchEvent) {
-                        return true;
-                    }
+                    break;
             }
 
             DebugLogger.d("onInterceptTouchEvent", "handle touch event - " + mIsHandledTouchEvent);
@@ -558,13 +574,18 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
                     if (Math.abs(dy) <= 0.5f) { // TODO 这里测试更新
 
-                        DebugLogger.d("onTouchEvent", "测试完成移动");
+                        DebugLogger.d("onTouchEvent", "测试完成移动 scrollYValue - " + getScrollYValue());
 
                         mIsBeginPulled = false;
                         mIsHandledTouchEvent = true;
+
+//                        mContentWrapper.onTouchEvent(event);
+
+                        mResetTouch = true;
+
                         handled = false;
                     } else {
-                        DebugLogger.d("onTouchEvent", "测试移动");
+                        DebugLogger.d("onTouchEvent", "测试移动 scrollYValue - " + getScrollYValue());
 
                         mScrollConsumed[0] = 0;
                         mScrollConsumed[1] = 0;
@@ -573,8 +594,20 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
                         // 消耗了事件，则不进行处理
                         if (mScrollConsumed[1] != 0 && mIsBeginPulled) {
-                            mIsHandledTouchEvent = true;
-                            handled = true;
+
+                            if (getScrollYValue() == 0) {
+                                mIsHandledTouchEvent = false;
+                                handled = false;
+
+                                mResetTouch = true;
+
+//                                mContentWrapper.onInterceptTouchEvent(event);
+
+//                                mContentWrapper.onTouchEvent(event);
+
+                            } else {
+                                handled = true;
+                            }
 
                             DebugLogger.d("onTouchEvent", "ACTION_MOVE 1 mIsHandledTouchEvent:"
                                     + true + ", dy:" + dy);
@@ -585,6 +618,11 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
                             mIsHandledTouchEvent = false;
 
                             handled = false;
+
+                            mResetTouch = true;
+
+//                            mContentWrapper.requestDisallowInterceptTouchEvent(true);
+                            mContentWrapper.onInterceptTouchEvent(event);
 
                             DebugLogger.d("onTouchEvent", "ACTION_MOVE 2 mIsHandledTouchEvent:"
                                     + false + ", dy:" + dy);
@@ -597,7 +635,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
                     DebugLogger.d("onTouchEvent", "ACTION_UP, mIsHandledTouchEvent: " + mIsHandledTouchEvent);
 
-                    if (mIsHandledTouchEvent || mIsBeginPulled) {
+                    if (mIsHandledTouchEvent && mIsBeginPulled) {
                         mIsHandledTouchEvent = false;
                         mIsBeginPulled = false;
                         // 当第一个显示出来时
@@ -647,6 +685,8 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
                     }
                     break;
             }
+
+            DebugLogger.d("onTouchEvent",  "handled " + handled);
 
             return handled;
         }
