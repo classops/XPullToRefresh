@@ -5,11 +5,14 @@ import android.content.Context;
 import android.os.Build;
 import android.support.annotation.Px;
 import android.support.annotation.RequiresApi;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingChild;
+import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -78,6 +81,10 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     private boolean mScrollUpLoadEnabled = false; // TODO 滚动加载
 
     private NestedScrollingParentHelper mParentHelper;
+    private NestedScrollingChildHelper mChildHelper;
+
+    private final int[] mParentOffsetInWindow = new int[2];
+    private final int[] mParentScrollConsumed = new int[2];
 
     private OnRefreshListener mOnRefreshListener;
 
@@ -140,6 +147,8 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
         mParentHelper = new NestedScrollingParentHelper(this);
+        mChildHelper = new NestedScrollingChildHelper(this);
+        mChildHelper.setNestedScrollingEnabled(true);
 
         setOverScrollMode(OVER_SCROLL_NEVER);
 
@@ -462,8 +471,6 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
             // 一直处理事件，直到手指抬起
 
-            DebugLogger.d("onInterceptTouchEvent", MotionEvent.actionToString(action));
-
             if (action != MotionEvent.ACTION_DOWN && mIsHandledTouchEvent) {
                 return true;
             }
@@ -498,7 +505,6 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
                             // 不可见，存在这样一种case，当正在刷新时并且RefreshableView已经滑到顶部，向上滑动，那么我们期望的结果是
                             // 依然能向上滑动，直到HeaderView完全不可见
                             // 2，deltaY > 0.5f：表示下拉的值大于0.5f
-
 
                             DebugLogger.d("onInterceptTouchEvent", "a");
 
@@ -692,21 +698,22 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         }
     }
 
+    // nested parent
+
     @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
         DebugLogger.d(TAG, "onStartNestedScroll" + " child scrollY " + target.getScrollY());
-
         return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
     @Override
     public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
-//        DebugLogger.d(TAG, "onNestedScrollAccepted");
+        DebugLogger.d(TAG, "onNestedScrollAccepted");
 
         if (ViewCompat.SCROLL_AXIS_VERTICAL == nestedScrollAxes)
             mParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
 
-//        startNestedScroll(nestedScrollAxes);
+        startNestedScroll(nestedScrollAxes);
     }
 
     @Override
@@ -759,37 +766,51 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
             // TODO Pull to 处理状态改变？？？
             resetHeaderAndFooterLayout();
         }
+
+        // Dispatch up our nested parent
+        stopNestedScroll();
     }
 
     @Override
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
-//        final int consumed =
-
-//        dispatchNestedScroll();
-
         DebugLogger.d(TAG, "onNestedScroll" + " dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
 
-
-        if (mIsBeginPulled) {
-            // 不处理 未消耗的部分
-
+        if (mIsBeginPulled) { // 不处理 未消耗的部分
             DebugLogger.d(TAG, "onNestedScroll disable unconsumed portion.");
+        } else {
+
         }
 
-//        DebugLogger.d(TAG, "View Class name - " + target.getClass().getName());
-
-        // 分发给Parent，如果实现ChildHelper则调用
-
-
         // TODO 移动Header和Footer
+        // Dispatch up to the nested parent first
 
+        // TODO 分发 onNestedScroll 事件，分发给Parent，如果实现ChildHelper则调用
+        dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                mParentOffsetInWindow);
+
+        final int dy = dyUnconsumed + mParentOffsetInWindow[1];
+        if (dy < 0) {
+            // TODO 移动窗口
+        }
+
+        DebugLogger.d("TAG", "mParentOffsetInWindow - " + mParentOffsetInWindow[1]);
     }
 
     @Override
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
         nestedPreScroll(target, dx, dy, consumed);
 
-        DebugLogger.d(TAG, "onNestedPreScroll:" + target.getClass().getSimpleName()
+        // TODO 分发 onNestedPreScroll 事件 , ??? 传入 null
+        // Now let our nested parent consume the leftovers
+        final int[] parentConsumed = mParentScrollConsumed;
+        if (dispatchNestedPreScroll(dx - consumed[0], dy - consumed[1], parentConsumed, null)) {
+            consumed[0] += parentConsumed[0];
+            consumed[1] += parentConsumed[1];
+
+            DebugLogger.e(TAG, "dispatchNestedPreScroll");
+        }
+
+        DebugLogger.d(TAG, "onNestedPreScroll:"
                 + ", dy = " + dy
                 + ", consumed[1] = " + consumed[1]);
     }
@@ -797,12 +818,18 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     @Override
     public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
         DebugLogger.d(TAG, "onNestedFling");
+        // 分发 nestedFling
+//        return dispatchNestedFling(velocityX, velocityY, consumed);
+
         return false;
     }
 
     @Override
     public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
         DebugLogger.d(TAG, "onNestedPreFling");
+        // 分发 nestedPreFling
+//        return dispatchNestedPreFling(velocityX, velocityY);
+
         return false;
     }
 
@@ -810,6 +837,67 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     public int getNestedScrollAxes() {
         DebugLogger.d(TAG, "getNestedScrollAxes");
         return mParentHelper.getNestedScrollAxes();
+    }
+
+    // nestedChild
+
+    @Override
+    public void setNestedScrollingEnabled(boolean enabled) {
+        DebugLogger.d(TAG, "setNestedScrollingEnabled - " + enabled);
+
+        mChildHelper.setNestedScrollingEnabled(enabled);
+    }
+
+    @Override
+    public boolean isNestedScrollingEnabled() {
+        DebugLogger.d(TAG, "isNestedScrollingEnabled - " + mChildHelper.isNestedScrollingEnabled());
+
+        return mChildHelper.isNestedScrollingEnabled();
+    }
+
+    @Override
+    public boolean startNestedScroll(int axes) {
+//        return super.startNestedScroll(axes);
+
+        boolean scroll = (axes == ViewCompat.SCROLL_AXIS_VERTICAL)
+                && mChildHelper.startNestedScroll(axes);
+
+        Log.d("TAG", "startNestedScroll - " + scroll);
+
+        // TODO 判断是否
+        return scroll;
+    }
+
+    @Override
+    public void stopNestedScroll() {
+        mChildHelper.stopNestedScroll();
+    }
+
+    @Override
+    public boolean hasNestedScrollingParent() {
+        return mChildHelper.hasNestedScrollingParent();
+    }
+
+    @Override
+    public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow) {
+        return mChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
+    }
+
+    @Override
+    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
+        return mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+    }
+
+    @Override
+    public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
+//        return mChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+        return false;
+    }
+
+    @Override
+    public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
+//        return mChildHelper.dispatchNestedPreFling(velocityX, velocityY);
+        return false;
     }
 
     @Override
@@ -995,10 +1083,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
                     if (scrollY < 0) {
                         int offset = scrollY + dy;
                         if (offset > 0) {
-
-                            mIsBeginPulled = false; // TODO 测试
-
-                            consumeHeaderScroll(scrollY, consumed, false);
+                            consumeHeaderScroll(Math.abs(scrollY), consumed, false);
                         } else {
                             consumeHeaderScroll(dy, consumed, false);
                         }
