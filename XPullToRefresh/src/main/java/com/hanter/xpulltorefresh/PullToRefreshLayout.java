@@ -1108,7 +1108,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
                 if (scrollY > 0) {
                     int offset = scrollY + dy;
                     if (offset < 0) {
-                        consumeFooterScroll(scrollY, consumed, false);
+                        consumeFooterScroll(-scrollY, consumed, false);
                     } else {
                         consumeFooterScroll(dy, consumed, false);
                     }
