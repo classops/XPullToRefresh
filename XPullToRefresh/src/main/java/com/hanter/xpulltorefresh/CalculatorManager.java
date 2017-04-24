@@ -3,6 +3,7 @@ package com.hanter.xpulltorefresh;
 import android.view.View;
 
 import com.hanter.xpulltorefresh.calculator.Calculator;
+import com.hanter.xpulltorefresh.calculator.CoordinatorLayoutCalculator;
 import com.hanter.xpulltorefresh.calculator.ListViewCalculator;
 import com.hanter.xpulltorefresh.calculator.NestedScrollViewCalculator;
 import com.hanter.xpulltorefresh.calculator.RecyclerViewCalculator;
@@ -36,6 +37,7 @@ public class CalculatorManager {
         add(ScrollViewCalculator.class);
         add(WebViewCalculator.class);
         add(ScrollingViewCalculator.class);
+        add(CoordinatorLayoutCalculator.class);
     }
 
     public static void push(Class clazz) {
