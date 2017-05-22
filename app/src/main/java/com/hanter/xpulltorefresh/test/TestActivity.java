@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import com.hanter.xpulltorefresh.PullToRefreshLayout;
+import com.hanter.xpulltorefresh.XPullToRefreshLayout;
 import com.hanter.xpulltorefresh.R;
 
 public class TestActivity extends AppCompatActivity {
@@ -28,24 +28,24 @@ public class TestActivity extends AppCompatActivity {
             }
         });
 
-        final PullToRefreshLayout prlContent = (PullToRefreshLayout) findViewById(R.id.prl_content);
+        final XPullToRefreshLayout prlContent = (XPullToRefreshLayout) findViewById(R.id.prl_content);
         prlContent.setPullDownRefreshEnabled(true);
         prlContent.setPullUpRefreshEnabled(false);
 
-        final PullToRefreshLayout prl = (PullToRefreshLayout) findViewById(R.id.prl);
+        final XPullToRefreshLayout prl = (XPullToRefreshLayout) findViewById(R.id.prl);
         prl.setEnabled(false);
         prl.setNestedScrollingEnabled(false);
         prl.setPullDownRefreshEnabled(false);
         prl.setPullUpRefreshEnabled(true);
 
-        prl.setOnRefreshListener(new PullToRefreshLayout.OnRefreshListener() {
+        prl.setOnRefreshListener(new XPullToRefreshLayout.OnRefreshListener() {
             @Override
-            public void onPullDownToRefresh(PullToRefreshLayout refreshView) {
+            public void onPullDownToRefresh(XPullToRefreshLayout refreshView) {
 
             }
 
             @Override
-            public void onPullUpToRefresh(PullToRefreshLayout refreshView) {
+            public void onPullUpToRefresh(XPullToRefreshLayout refreshView) {
 
             }
         });

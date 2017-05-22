@@ -10,7 +10,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".test.MainActivity">
+        <activity
+            android:name=".test.MainActivity"
+            android:exported="true">
         </activity>
         <activity
             android:name=".test.TestRecyclerViewRefreshActivity"
@@ -35,14 +37,18 @@
         </activity>
         <activity
             android:name=".test.TestActivity"
+            android:exported="true"
             android:label="TestActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:exported="true">
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
             android:name=".test.ScrollingActivity"
+            android:exported="true"
             android:label="@string/title_activity_scrolling"
             android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity android:name=".test.TestXPullNestedScrollingActivity"
+                  android:exported="true">
         </activity>
     </application>
 

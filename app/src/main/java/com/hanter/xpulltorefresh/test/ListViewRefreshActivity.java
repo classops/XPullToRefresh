@@ -10,12 +10,12 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 import com.hanter.xpulltorefresh.DebugLogger;
-import com.hanter.xpulltorefresh.PullToRefreshLayout;
+import com.hanter.xpulltorefresh.XPullToRefreshLayout;
 import com.hanter.xpulltorefresh.R;
 
 public class ListViewRefreshActivity extends AppCompatActivity {
 
-    PullToRefreshLayout refresh;
+    XPullToRefreshLayout refresh;
     ListView lvContent;
 
     @Override
@@ -26,11 +26,11 @@ public class ListViewRefreshActivity extends AppCompatActivity {
         lvContent = (ListView) findViewById(R.id.rlv_content);
         lvContent.setAdapter(new Adapter(this));
 
-        refresh = (PullToRefreshLayout) findViewById(R.id.refresh);
+        refresh = (XPullToRefreshLayout) findViewById(R.id.refresh);
         refresh.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        refresh.setOnRefreshListener(new PullToRefreshLayout.OnRefreshListener() {
+        refresh.setOnRefreshListener(new XPullToRefreshLayout.OnRefreshListener() {
             @Override
-            public void onPullDownToRefresh(PullToRefreshLayout refreshView) {
+            public void onPullDownToRefresh(XPullToRefreshLayout refreshView) {
 //                Toast.makeText(MainActivity.this, "下拉刷新", Toast.LENGTH_SHORT).show();
 
                 DebugLogger.d("onPullDownToRefresh", "下拉刷新");
@@ -44,7 +44,7 @@ public class ListViewRefreshActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onPullUpToRefresh(PullToRefreshLayout refreshView) {
+            public void onPullUpToRefresh(XPullToRefreshLayout refreshView) {
 //                Toast.makeText(MainActivity.this, "上拉刷新", Toast.LENGTH_SHORT).show();
 
                 DebugLogger.d("onPullUpToRefresh", "上拉刷新");

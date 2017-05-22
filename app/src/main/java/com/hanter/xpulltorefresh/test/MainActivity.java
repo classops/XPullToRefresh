@@ -5,24 +5,24 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.hanter.xpulltorefresh.DebugLogger;
-import com.hanter.xpulltorefresh.PullToRefreshLayout;
+import com.hanter.xpulltorefresh.XPullToRefreshLayout;
 import com.hanter.xpulltorefresh.R;
 
 public class MainActivity extends AppCompatActivity {
 
-    private PullToRefreshLayout refresh;
+    private XPullToRefreshLayout refresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        refresh = (PullToRefreshLayout) findViewById(R.id.refresh);
+        refresh = (XPullToRefreshLayout) findViewById(R.id.refresh);
         refresh.setOverScrollMode(View.OVER_SCROLL_NEVER);
         refresh.setPullDownRefreshEnabled(false);
-        refresh.setOnRefreshListener(new PullToRefreshLayout.OnRefreshListener() {
+        refresh.setOnRefreshListener(new XPullToRefreshLayout.OnRefreshListener() {
             @Override
-            public void onPullDownToRefresh(PullToRefreshLayout refreshView) {
+            public void onPullDownToRefresh(XPullToRefreshLayout refreshView) {
 //                Toast.makeText(MainActivity.this, "下拉刷新", Toast.LENGTH_SHORT).show();
 
                 DebugLogger.d("onPullDownToRefresh", "下拉刷新");
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onPullUpToRefresh(PullToRefreshLayout refreshView) {
+            public void onPullUpToRefresh(XPullToRefreshLayout refreshView) {
 //                Toast.makeText(MainActivity.this, "上拉刷新", Toast.LENGTH_SHORT).show();
 
                 DebugLogger.d("onPullUpToRefresh", "上拉刷新");

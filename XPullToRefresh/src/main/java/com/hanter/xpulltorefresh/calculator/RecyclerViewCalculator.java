@@ -2,7 +2,7 @@ package com.hanter.xpulltorefresh.calculator;
 
 import android.support.v7.widget.RecyclerView;
 
-import com.hanter.xpulltorefresh.PullToRefreshLayout;
+import com.hanter.xpulltorefresh.XPullToRefreshLayout;
 
 /**
  * 类名：RecyclerViewCalculator <br/>
@@ -15,7 +15,7 @@ import com.hanter.xpulltorefresh.PullToRefreshLayout;
 
 public class RecyclerViewCalculator extends Calculator<RecyclerView> {
 
-    public RecyclerViewCalculator(PullToRefreshLayout refreshLayout, RecyclerView refreshableView) {
+    public RecyclerViewCalculator(XPullToRefreshLayout refreshLayout, RecyclerView refreshableView) {
         super(refreshLayout, refreshableView);
     }
 

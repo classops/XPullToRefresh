@@ -3,16 +3,15 @@ package com.hanter.xpulltorefresh.test;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.ScrollView;
 
 import com.hanter.xpulltorefresh.DebugLogger;
-import com.hanter.xpulltorefresh.PullToRefreshLayout;
+import com.hanter.xpulltorefresh.XPullToRefreshLayout;
 import com.hanter.xpulltorefresh.R;
 
 public class ScrollViewRefreshActivity extends AppCompatActivity {
 
-    PullToRefreshLayout refresh;
+    XPullToRefreshLayout refresh;
     ScrollView slvContent;
 
     @Override
@@ -22,12 +21,12 @@ public class ScrollViewRefreshActivity extends AppCompatActivity {
 
         slvContent = (ScrollView) findViewById(R.id.slv_content);
 
-        refresh = (PullToRefreshLayout) findViewById(R.id.refresh);
+        refresh = (XPullToRefreshLayout) findViewById(R.id.refresh);
         refresh.setOverScrollMode(View.OVER_SCROLL_NEVER);
         refresh.setPullDownRefreshEnabled(true);
-        refresh.setOnRefreshListener(new PullToRefreshLayout.OnRefreshListener() {
+        refresh.setOnRefreshListener(new XPullToRefreshLayout.OnRefreshListener() {
             @Override
-            public void onPullDownToRefresh(PullToRefreshLayout refreshView) {
+            public void onPullDownToRefresh(XPullToRefreshLayout refreshView) {
 //                Toast.makeText(MainActivity.this, "下拉刷新", Toast.LENGTH_SHORT).show();
 
                 DebugLogger.d("onPullDownToRefresh", "下拉刷新");
@@ -41,7 +40,7 @@ public class ScrollViewRefreshActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onPullUpToRefresh(PullToRefreshLayout refreshView) {
+            public void onPullUpToRefresh(XPullToRefreshLayout refreshView) {
 //                Toast.makeText(MainActivity.this, "上拉刷新", Toast.LENGTH_SHORT).show();
 
                 DebugLogger.d("onPullUpToRefresh", "上拉刷新");

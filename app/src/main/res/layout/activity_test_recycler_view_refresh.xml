@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.hanter.xpulltorefresh.PullToRefreshLayout
+<com.hanter.xpulltorefresh.XPullToRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/refresh"
@@ -17,13 +17,8 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rlv_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#ff0000"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-
+        android:layout_height="match_parent" >
 
     </android.support.v7.widget.RecyclerView>
 
-</com.hanter.xpulltorefresh.PullToRefreshLayout>
+</com.hanter.xpulltorefresh.XPullToRefreshLayout>

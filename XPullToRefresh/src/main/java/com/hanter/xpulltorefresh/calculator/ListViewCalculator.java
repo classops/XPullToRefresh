@@ -4,7 +4,7 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.ListView;
 
-import com.hanter.xpulltorefresh.PullToRefreshLayout;
+import com.hanter.xpulltorefresh.XPullToRefreshLayout;
 
 /**
  * 类名：ListViewCalculator <br/>
@@ -16,7 +16,7 @@ import com.hanter.xpulltorefresh.PullToRefreshLayout;
  */
 public class ListViewCalculator extends Calculator<ListView> {
 
-    public ListViewCalculator(PullToRefreshLayout refreshLayout, ListView refreshableView) {
+    public ListViewCalculator(XPullToRefreshLayout refreshLayout, ListView refreshableView) {
         super(refreshLayout, refreshableView);
     }
 

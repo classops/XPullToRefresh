@@ -3,7 +3,7 @@ package com.hanter.xpulltorefresh.calculator;
 import android.support.v4.widget.NestedScrollView;
 import android.view.View;
 
-import com.hanter.xpulltorefresh.PullToRefreshLayout;
+import com.hanter.xpulltorefresh.XPullToRefreshLayout;
 
 /**
  * 类名：ScrollingViewCalculator <br/>
@@ -16,7 +16,7 @@ import com.hanter.xpulltorefresh.PullToRefreshLayout;
 
 public class NestedScrollViewCalculator extends Calculator<NestedScrollView> {
 
-    public NestedScrollViewCalculator(PullToRefreshLayout refreshLayout, NestedScrollView refreshableView) {
+    public NestedScrollViewCalculator(XPullToRefreshLayout refreshLayout, NestedScrollView refreshableView) {
         super(refreshLayout, refreshableView);
     }
 

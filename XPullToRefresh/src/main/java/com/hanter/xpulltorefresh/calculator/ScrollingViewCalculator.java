@@ -2,7 +2,7 @@ package com.hanter.xpulltorefresh.calculator;
 
 import android.support.v4.view.ScrollingView;
 
-import com.hanter.xpulltorefresh.PullToRefreshLayout;
+import com.hanter.xpulltorefresh.XPullToRefreshLayout;
 
 /**
  * 类名：ScrollingViewCalculator <br/>
@@ -14,7 +14,7 @@ import com.hanter.xpulltorefresh.PullToRefreshLayout;
  */
 public class ScrollingViewCalculator extends Calculator<ScrollingView> {
 
-    public ScrollingViewCalculator(PullToRefreshLayout refreshLayout, ScrollingView refreshableView) {
+    public ScrollingViewCalculator(XPullToRefreshLayout refreshLayout, ScrollingView refreshableView) {
         super(refreshLayout, refreshableView);
     }
 
