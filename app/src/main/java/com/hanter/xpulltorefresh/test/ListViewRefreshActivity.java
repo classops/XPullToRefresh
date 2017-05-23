@@ -57,6 +57,8 @@ public class ListViewRefreshActivity extends AppCompatActivity {
                 }, 4000);
             }
         });
+
+        refresh.doPullRefreshing(true, 1000);
     }
 
 

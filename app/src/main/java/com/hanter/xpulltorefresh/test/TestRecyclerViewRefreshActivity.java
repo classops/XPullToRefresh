@@ -58,6 +58,8 @@ public class TestRecyclerViewRefreshActivity extends AppCompatActivity {
                 }, 10000);
             }
         });
+
+        refresh.doPullRefreshing(true, 1000);
     }
 
     public static class Adapter extends RecyclerView.Adapter<ViewHolder> {
