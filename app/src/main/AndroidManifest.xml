@@ -47,8 +47,15 @@
             android:label="@string/title_activity_scrolling"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".test.TestXPullNestedScrollingActivity"
-                  android:exported="true">
+        <activity
+            android:name=".test.TestXPullNestedScrollingActivity"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".test.TestPagerScrollingActivity"
+            android:exported="true"
+            android:label="@string/title_activity_test_pager_scrolling"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 
