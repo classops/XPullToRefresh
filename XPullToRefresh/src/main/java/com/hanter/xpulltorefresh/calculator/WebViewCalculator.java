@@ -3,7 +3,7 @@ package com.hanter.xpulltorefresh.calculator;
 
 import android.webkit.WebView;
 import com.hanter.xpulltorefresh.DebugLogger;
-import com.hanter.xpulltorefresh.XPullToRefreshLayout;
+import com.hanter.xpulltorefresh.PullToRefreshLayout;
 
 /**
  * 类名：WebViewCalculator <br/>
@@ -17,7 +17,7 @@ import com.hanter.xpulltorefresh.XPullToRefreshLayout;
 public class WebViewCalculator extends Calculator<WebView> {
 
 
-    public WebViewCalculator(XPullToRefreshLayout refreshLayout, WebView refreshableView) {
+    public WebViewCalculator(PullToRefreshLayout refreshLayout, WebView refreshableView) {
         super(refreshLayout, refreshableView);
     }
 

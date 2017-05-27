@@ -7,12 +7,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.hanter.xpulltorefresh.DebugLogger;
-import com.hanter.xpulltorefresh.XPullToRefreshLayout;
+import com.hanter.xpulltorefresh.PullToRefreshLayout;
 import com.hanter.xpulltorefresh.R;
 
 public class WebViewRefreshActivity extends AppCompatActivity {
 
-    private XPullToRefreshLayout refresh;
+    private PullToRefreshLayout refresh;
     private WebView mWebView;
 
     @Override
@@ -20,11 +20,11 @@ public class WebViewRefreshActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view_refresh);
 
-        refresh = (XPullToRefreshLayout) findViewById(R.id.refresh);
+        refresh = (PullToRefreshLayout) findViewById(R.id.refresh);
         refresh.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        refresh.setOnRefreshListener(new XPullToRefreshLayout.OnRefreshListener() {
+        refresh.setOnRefreshListener(new PullToRefreshLayout.OnRefreshListener() {
             @Override
-            public void onPullDownToRefresh(XPullToRefreshLayout refreshView) {
+            public void onPullDownToRefresh(PullToRefreshLayout refreshView) {
 //                Toast.makeText(MainActivity.this, "下拉刷新", Toast.LENGTH_SHORT).show();
 
                 DebugLogger.d("onPullDownToRefresh", "下拉刷新");
@@ -38,7 +38,7 @@ public class WebViewRefreshActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onPullUpToRefresh(XPullToRefreshLayout refreshView) {
+            public void onPullUpToRefresh(PullToRefreshLayout refreshView) {
 //                Toast.makeText(MainActivity.this, "上拉刷新", Toast.LENGTH_SHORT).show();
 
                 DebugLogger.d("onPullUpToRefresh", "上拉刷新");

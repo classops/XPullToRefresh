@@ -1,6 +1,6 @@
 package com.hanter.xpulltorefresh.calculator;
 
-import com.hanter.xpulltorefresh.XPullToRefreshLayout;
+import com.hanter.xpulltorefresh.PullToRefreshLayout;
 
 /**
  * 类名：RefreshStateCalculator <br/>
@@ -16,10 +16,10 @@ public abstract class Calculator<T> {
     public final static int SCROLL_DIRECTION_DOWN = -1;
     public final static int SCROLL_DIRECTION_UP = 1;
 
-    protected final XPullToRefreshLayout mPullToRefreshLayout;
+    protected final PullToRefreshLayout mPullToRefreshLayout;
     protected final T mRefreshableView;
 
-    public Calculator(XPullToRefreshLayout refreshLayout, T refreshableView) {
+    public Calculator(PullToRefreshLayout refreshLayout, T refreshableView) {
         mPullToRefreshLayout = refreshLayout;
         mRefreshableView = refreshableView;
     }

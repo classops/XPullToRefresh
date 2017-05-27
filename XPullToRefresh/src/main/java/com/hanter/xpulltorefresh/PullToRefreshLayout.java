@@ -11,17 +11,14 @@ import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
-import com.goldenhanter.testglide.xpulltorefresh.R;
 import com.hanter.xpulltorefresh.calculator.Calculator;
 
 /**
@@ -64,7 +61,6 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     protected View mHeader;
     protected View mFooter;
     protected View mContent; // 实际内容视图
-    protected FrameLayout mContentWrapper;
 
     protected LoadingLayout mHeaderLayout;
     protected LoadingLayout mFooterLayout;
@@ -73,9 +69,9 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
     private boolean mResetTouch = false;
 
-    private boolean mPullDownRefreshEnabled = true; // 是否能下拉
+    private boolean mPullDownRefreshEnabled = false; // 是否能下拉
     private boolean mPullUpRefreshEnabled = true; // 是否能上拉
-    private boolean mScrollUpLoadEnabled = false; // TODO 滚动加载
+    private boolean mScrollUpLoadEnabled = false; // 滚动加载
 
     private NestedScrollingParentHelper mParentHelper;
     private NestedScrollingChildHelper mChildHelper;
@@ -142,14 +138,11 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
     private void init(Context context, AttributeSet attrs) {
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-
         mParentHelper = new NestedScrollingParentHelper(this);
         mChildHelper = new NestedScrollingChildHelper(this);
         mChildHelper.setNestedScrollingEnabled(true);
 
         setOverScrollMode(OVER_SCROLL_NEVER);
-
-        addRefreshableView(context);
 
         // 初始化 Wrapper Padding
         setPadding(super.getPaddingLeft(), super.getPaddingTop(), super.getPaddingRight(), super.getPaddingBottom());
@@ -163,16 +156,6 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 //        addHeaderAndFooter(context);
     }
 
-    protected void addRefreshableView(Context context) {
-        int width = ViewGroup.LayoutParams.MATCH_PARENT;
-        int height = ViewGroup.LayoutParams.MATCH_PARENT;
-
-        // 创建一个包装容器
-        mContentWrapper = new FrameLayout(context);
-        mContentWrapper.setId(R.id.xpull_to_refresh_content_wrapper);
-        addViewInternal(mContentWrapper, new RelativeLayout.LayoutParams(width, height));
-    }
-
     private void createScrollCalculator() {
         // 设置是否支持内嵌滚动
         mNestedScroll = mContent instanceof NestedScrollingChild;
@@ -180,7 +163,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         Class clazz = CalculatorManager.findCalculator(mContent);
 
         if (clazz != null ) {
-            DebugLogger.d(TAG, "calculaor class name is " + clazz.getName());
+            DebugLogger.d(TAG, "calculator class name is " + clazz.getName());
 
             mRefreshStateCalculator = CalculatorManager.createCalculator(clazz, this, mContent);
 
@@ -192,52 +175,6 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
             throw new UnsupportedOperationException("don't support the view type.");
         }
 
-        /*
-        if (mContent instanceof NestedScrollView) {
-            NestedScrollView content = (NestedScrollView) mContent;
-            mRefreshStateCalculator = new NestedScrollViewCalculator(this, content);
-        } else if (mContent instanceof RecyclerView) {
-            RecyclerView content = (RecyclerView) mContent;
-            mRefreshStateCalculator = new RecyclerViewCalculator(this, content);
-        } else if (mContent instanceof ScrollingView) {
-            ScrollingView content = (ScrollingView) mContent;
-            mRefreshStateCalculator = new ScrollingViewCalculator(this, content);
-        } else if (mContent instanceof ListView) {
-            ListView content = (ListView) mContent;
-
-            // 兼容性处理，Android5.0则可以开启内部NestedScrolling特性
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                content.setNestedScrollingEnabled(true);
-                mNestedScroll = true;
-            }
-
-            mRefreshStateCalculator = new ListViewCalculator(this, content);
-        } else if (mContent instanceof WebView) {
-            WebView content = (WebView) mContent;
-
-            // 兼容性处理，Android5.0则可以开启内部NestedScrolling特性
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                content.setNestedScrollingEnabled(true);
-//                mNestedScroll = true;
-//            }
-
-            mRefreshStateCalculator = new WebViewCalculator(this, content);
-        } else if (mContent instanceof ScrollView) {
-            ScrollView content = (ScrollView) mContent;
-
-            // 兼容性处理，Android5.0则可以开启内部NestedScrolling特性
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                content.setNestedScrollingEnabled(true);
-//                mNestedScroll = true;
-//            }
-
-            mRefreshStateCalculator = new ScrollViewCalculator(this, content);
-        } else {
-            throw new UnsupportedOperationException("don't support this class view!");
-        }
-
-        */
-
         // DebugLogger.d("createScrollCalculator", "mNestedScroll:" + mNestedScroll);
     }
 
@@ -246,7 +183,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
      * @return true - 支持内嵌滚动，false - 不支持
      */
     protected boolean isSupportedNestedScroll() {
-        return mNestedScroll && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        return mNestedScroll || Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
     /**
@@ -281,7 +218,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 //                .LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 //        headerParams.addRule(RelativeLayout.ABOVE, R.id.xpull_to_refresh_content_wrapper);
         addViewInternal(mHeader, 0);
-        RelativeLayout.LayoutParams headerParams = (LayoutParams) mHeader.getLayoutParams();
+        LayoutParams headerParams = (LayoutParams) mHeader.getLayoutParams();
 //        headerParams.addRule(RelativeLayout.ABOVE, mContentWrapper.getId());
         headerParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
 //        mHeader.setLayoutParams(headerParams);
@@ -294,63 +231,31 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 //        addViewInternal(mFooter, -1, footerParams);
 
         addViewInternal(mFooter, -1);
-        RelativeLayout.LayoutParams footerParams = (LayoutParams) mFooter.getLayoutParams();
+        LayoutParams footerParams = (LayoutParams) mFooter.getLayoutParams();
 //        footerParams.addRule(RelativeLayout.BELOW, mContentWrapper.getId());
         footerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
 //        mFooter.setLayoutParams(footerParams);
 
 
-        RelativeLayout.LayoutParams contentParams = (LayoutParams) mContentWrapper.getLayoutParams();
+        LayoutParams contentParams = (LayoutParams) mContent.getLayoutParams();
         if (isInEditMode()) { // 布局编辑模式，默认只显示待刷新布局
-            mFooter.setVisibility(View.INVISIBLE);
-            mHeader.setVisibility(View.INVISIBLE);
+            mFooter.setVisibility(View.GONE);
+            mHeader.setVisibility(View.GONE);
         } else {
             contentParams.addRule(RelativeLayout.BELOW, mHeader.getId());
             contentParams.addRule(RelativeLayout.ABOVE, mFooter.getId());
         }
 
-        mHeaderHeight = mHeader != null ? mHeader.getHeight() : 0;
-        mFooterHeight = mFooter != null ? mFooter.getHeight() : 0;
+        mHeaderHeight = mHeader != null ? mHeader.getMeasuredHeight() : 0;
+        mFooterHeight = mFooter != null ? mFooter.getMeasuredHeight() : 0;
 
         int paddingTop = - mHeaderHeight;
         int paddingBottom = - mFooterHeight;
         setPaddingInternal(0, paddingTop, 0, paddingBottom);
     }
 
-    @Override
-    public int getPaddingLeft() {
-        return mContentWrapper.getPaddingLeft();
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    @Override
-    public int getPaddingStart() {
-        return mContentWrapper.getPaddingStart();
-    }
-
-    @Override
-    public int getPaddingRight() {
-        return mContentWrapper.getPaddingRight();
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    @Override
-    public int getPaddingEnd() {
-        return mContentWrapper.getPaddingEnd();
-    }
-
-    @Override
-    public int getPaddingTop() {
-        return mContentWrapper.getPaddingTop();
-    }
-
     public int getPaddingTopInternal() {
         return super.getPaddingTop();
-    }
-
-    @Override
-    public int getPaddingBottom() {
-        return mContentWrapper.getPaddingBottom();
     }
 
     public int getPaddingBottomInternal() {
@@ -361,20 +266,9 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         super.setPadding(left, top, right, bottom);
     }
 
-    @Override
-    public void setPadding(@Px int left, @Px int top, @Px int right, @Px int bottom) {
-        mContentWrapper.setPadding(left, top, right, bottom);
-    }
-
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void setPaddingRelativeInternal(@Px int left, @Px int top, @Px int right, @Px int bottom) {
         super.setPaddingRelative(left, top, right, bottom);
-    }
-
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    @Override
-    public void setPaddingRelative(@Px int start, @Px int top, @Px int end, @Px int bottom) {
-        mContentWrapper.setPaddingRelative(start, top, end, bottom);
     }
 
     // NestedParent
@@ -387,19 +281,19 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
     @Override
     public void addView(View child, int index, ViewGroup.LayoutParams params) {
-//        super.addView(child, index, params);
-        mContentWrapper.addView(child, index, params);
+        params.width = LayoutParams.MATCH_PARENT;
+        params.height = LayoutParams.MATCH_PARENT;
+
+        super.addView(child, index, params);
 
         mContent = child;
         createScrollCalculator();
-
         addHeaderAndFooter(getContext());
+        mContent.bringToFront();
     }
 
     @Override
     public void addView(View child) {
-//        if (mContent != null)
-//            ((ViewGroup) mContent).addView(child);
         addView(child, -1);
     }
 
@@ -482,6 +376,10 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
                     DebugLogger.d("onInterceptTouchEvent", "ACTION_MOVE, mIsHandledTouchEvent: " + mIsHandledTouchEvent);
 
+                    if (mIsHandledTouchEvent) {
+                        return true;
+                    }
+
                     final int y = (int) (event.getY() + 0.5f);
                     final int dy = mLastTouchY - y;
                     final int absDiff = Math.abs(dy);
@@ -536,11 +434,8 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
-//                    DebugLogger.d("onInterceptTouchEvent", "ACTION_UP, mIsHandledTouchEvent: " + mIsHandledTouchEvent);
-//                    mIsHandledTouchEvent = false;
-                    break;
-
-                default:
+                    DebugLogger.d("onInterceptTouchEvent", "ACTION_UP, mIsHandledTouchEvent: " + mIsHandledTouchEvent);
+                    mIsHandledTouchEvent = false;
                     break;
             }
 
@@ -575,58 +470,40 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
                     DebugLogger.d("onTouchEvent", "ACTION_MOVE dy : " + dy);
 
-                    if (Math.abs(dy) <= 0.5f) { // TODO 这里测试更新
+                    // DebugLogger.d("onTouchEvent", "测试完成移动 scrollYValue - " + getScrollYValue());
 
-                        DebugLogger.d("onTouchEvent", "测试完成移动 scrollYValue - " + getScrollYValue());
-
+                    if (Math.abs(dy) <= 0.5f) {
                         mIsBeginPulled = false;
                         mIsHandledTouchEvent = true;
-
-//                        mContentWrapper.onTouchEvent(event);
-
                         mResetTouch = true;
-
                         handled = false;
                     } else {
-                        DebugLogger.d("onTouchEvent", "测试移动 scrollYValue - " + getScrollYValue());
-
                         mScrollConsumed[0] = 0;
                         mScrollConsumed[1] = 0;
 
                         nestedPreScroll(mContent, dx, dy, mScrollConsumed);
 
                         // 消耗了事件，则不进行处理
-                        if (mScrollConsumed[1] != 0 && mIsBeginPulled) {
+                        if (mScrollConsumed[1] != 0 || mIsBeginPulled) {
 
-                            if (getScrollYValue() == 0) {
-                                mIsHandledTouchEvent = false;
-                                handled = false;
+                            mIsHandledTouchEvent = true;
+                            handled = true;
 
-                                mResetTouch = true;
-
-//                                mContentWrapper.onInterceptTouchEvent(event);
-
-//                                mContentWrapper.onTouchEvent(event);
-
-                            } else {
-                                handled = true;
-                            }
+//                            if (getScrollYValue() == 0) {
+//                                mIsHandledTouchEvent = false;
+//                                handled = false;
+//                                mResetTouch = true;
+//                            } else {
+//                                handled = true;
+//                            }
 
                             DebugLogger.d("onTouchEvent", "ACTION_MOVE 1 mIsHandledTouchEvent:"
                                     + true + ", dy:" + dy);
-
-                            // FIXME RelativeLayout+Wrapper，快速切换有抖动现象
-                            // FIXME 更新？？？,处理未消耗掉部分，因为无法传递，暂时不做……
+                            // 未消耗掉部分，无法传递，内部事件传递导致如此
                         } else {
                             mIsHandledTouchEvent = false;
-
                             handled = false;
-
                             mResetTouch = true;
-
-//                            mContentWrapper.requestDisallowInterceptTouchEvent(true);
-                            mContentWrapper.onInterceptTouchEvent(event);
-
                             DebugLogger.d("onTouchEvent", "ACTION_MOVE 2 mIsHandledTouchEvent:"
                                     + false + ", dy:" + dy);
                         }
@@ -638,53 +515,10 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
                     DebugLogger.d("onTouchEvent", "ACTION_UP, mIsHandledTouchEvent: " + mIsHandledTouchEvent);
 
-                    if (mIsHandledTouchEvent && mIsBeginPulled) {
+                    if (mIsHandledTouchEvent || mIsBeginPulled) {
                         mIsHandledTouchEvent = false;
                         mIsBeginPulled = false;
-                        // 当第一个显示出来时
-
-                        switch (mHeaderLayout.getState()) {
-                            case PullToRefreshState.RELEASE_TO_REFRESH:
-                                mHeaderLayout.setState(PullToRefreshState.REFRESHING);
-
-                                post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (mOnRefreshListener != null)
-                                            mOnRefreshListener.onPullDownToRefresh(PullToRefreshLayout.this);
-                                    }
-                                });
-
-                                handled = true;
-                                break;
-
-                            case PullToRefreshState.PULL_TO_REFRESH:
-                                mHeaderLayout.setState(PullToRefreshState.RESET);
-                                break;
-                        }
-
-                        switch (mFooterLayout.getState()) {
-                            case PullToRefreshState.RELEASE_TO_REFRESH:
-
-                                mFooterLayout.setState(PullToRefreshState.REFRESHING);
-
-                                post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (mOnRefreshListener != null)
-                                            mOnRefreshListener.onPullUpToRefresh(PullToRefreshLayout.this);
-                                    }
-                                });
-
-                                handled = true;
-                                break;
-
-                            case PullToRefreshState.PULL_TO_REFRESH:
-                                mFooterLayout.setState(PullToRefreshState.RESET);
-                                break;
-                        }
-
-                        resetHeaderAndFooterLayout();
+                        finishNestedScroll();
                     }
                     break;
             }
@@ -700,7 +534,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
         DebugLogger.d(TAG, "onStartNestedScroll" + " child scrollY " + target.getScrollY());
-        return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
+        return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0 && isEnabled();
     }
 
     @Override
@@ -715,53 +549,17 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
     @Override
     public void onStopNestedScroll(View target) {
-//        stopNestedScroll();
         DebugLogger.d(TAG, "onStopNestedScroll");
 
         mParentHelper.onStopNestedScroll(target);
 
+        // 停止滑动，判断当前位置状态，刷新、释放
+        setPullToRefreshState();
+
         if (mIsBeginPulled) {
             mIsBeginPulled = false;
 
-            switch (mHeaderLayout.getState()) {
-                case PullToRefreshState.RELEASE_TO_REFRESH:
-                    mHeaderLayout.setState(PullToRefreshState.REFRESHING);
-
-                    post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mOnRefreshListener != null)
-                                mOnRefreshListener.onPullDownToRefresh(PullToRefreshLayout.this);
-                        }
-                    });
-                    break;
-
-                case PullToRefreshState.PULL_TO_REFRESH:
-                    mHeaderLayout.setState(PullToRefreshState.RESET);
-                    break;
-            }
-
-            switch (mFooterLayout.getState()) {
-                case PullToRefreshState.RELEASE_TO_REFRESH:
-
-                    mFooterLayout.setState(PullToRefreshState.REFRESHING);
-
-                    post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mOnRefreshListener != null)
-                                mOnRefreshListener.onPullUpToRefresh(PullToRefreshLayout.this);
-                        }
-                    });
-                    break;
-
-                case PullToRefreshState.PULL_TO_REFRESH:
-                    mFooterLayout.setState(PullToRefreshState.RESET);
-                    break;
-            }
-
-            // TODO Pull to 处理状态改变？？？
-            resetHeaderAndFooterLayout();
+            finishNestedScroll();
         }
 
         // Dispatch up our nested parent
@@ -774,42 +572,58 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
         if (mIsBeginPulled) { // 不处理 未消耗的部分
             DebugLogger.d(TAG, "onNestedScroll disable unconsumed portion.");
-        } else {
-
         }
 
-        // TODO 移动Header和Footer
         // Dispatch up to the nested parent first
 
-        // TODO 分发 onNestedScroll 事件，分发给Parent，如果实现ChildHelper则调用
+        mParentOffsetInWindow[0] = mParentOffsetInWindow[1] = 0;
+        // 分发 onNestedScroll 事件给Parent，获取父类消耗多少
         dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
                 mParentOffsetInWindow);
 
+        // 获取未消耗的部分
         final int dy = dyUnconsumed + mParentOffsetInWindow[1];
-        if (dy < 0) {
-            // TODO 移动窗口
+        if (dy != 0) { // 父类View并没有完全消耗事件时，处理控件内部滑动，移动Header或Footer刷新布局
+            int[] consumed = new int[2];
+            nestedPreScroll(target, 0, dy, consumed);
         }
 
-        DebugLogger.d("TAG", "mParentOffsetInWindow - " + mParentOffsetInWindow[1]);
+        DebugLogger.d(TAG, "mParentOffsetInWindow - " + mParentOffsetInWindow[1]
+                + ", onNestedScroll - " + dy);
     }
 
     @Override
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-        nestedPreScroll(target, dx, dy, consumed);
+        DebugLogger.e(TAG, "scrollY:" + getScrollYValue());
 
-        // TODO 分发 onNestedPreScroll 事件 , ??? 传入 null
-        // Now let our nested parent consume the leftovers
-        final int[] parentConsumed = mParentScrollConsumed;
-        if (dispatchNestedPreScroll(dx - consumed[0], dy - consumed[1], parentConsumed, null)) {
-            consumed[0] += parentConsumed[0];
-            consumed[1] += parentConsumed[1];
-
-            DebugLogger.e(TAG, "dispatchNestedPreScroll");
+        if (Math.abs(getScrollYValue()) >= mTouchSlop && dy <= mTouchSlop) { // 表示刷新消耗了事件，先把刷新布局复位
+            nestedPreScroll(target, dx, dy, consumed);
         }
 
-        DebugLogger.d(TAG, "onNestedPreScroll:"
-                + ", dy = " + dy
-                + ", consumed[1] = " + consumed[1]);
+        // 分发 onNestedPreScroll 事件给父View, offsetInWindow 传入 null FIXME ???
+        // Now let our nested parent consume the leftovers
+        mParentScrollConsumed[1] = mParentScrollConsumed[0] = 0;
+        final int[] parentConsumed = mParentScrollConsumed;
+        boolean dispatched = dispatchNestedPreScroll(dx - consumed[0], dy - consumed[1], parentConsumed, mParentOffsetInWindow);
+        if (dispatched) {
+
+            DebugLogger.d(TAG, "onNestedPreScroll:"
+                    + ", dispatched = " + dispatched
+                    + ", dy = " + dy
+                    + ", consumed[1] = " + consumed[1]
+                    + ", parentConsumed[1] = " + parentConsumed[1]
+                    + ", offsetInWindow[1] = " + mParentOffsetInWindow[1]);
+
+            consumed[0] += parentConsumed[0];
+            consumed[1] += parentConsumed[1];
+        } else {
+            DebugLogger.d(TAG, "onNestedPreScroll:"
+                    + ", dispatched = " + dispatched
+                    + ", dy = " + dy
+                    + ", consumed[1] = " + consumed[1]
+                    + ", parentConsumed[1] = " + parentConsumed[1]
+                    + ", offsetInWindow[1] = " + mParentOffsetInWindow[1]);
+        }
     }
 
     @Override
@@ -854,14 +668,9 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
     @Override
     public boolean startNestedScroll(int axes) {
-//        return super.startNestedScroll(axes);
-
         boolean scroll = (axes == ViewCompat.SCROLL_AXIS_VERTICAL)
                 && mChildHelper.startNestedScroll(axes);
-
-        Log.d("TAG", "startNestedScroll - " + scroll);
-
-        // TODO 判断是否
+        DebugLogger.d("TAG", "startNestedScroll - " + scroll);
         return scroll;
     }
 
@@ -887,14 +696,14 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
     @Override
     public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
-//        return mChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
-        return false;
+        return mChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+//        return false;
     }
 
     @Override
     public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
-//        return mChildHelper.dispatchNestedPreFling(velocityX, velocityY);
-        return false;
+        return mChildHelper.dispatchNestedPreFling(velocityX, velocityY);
+//        return false;
     }
 
     @Override
@@ -904,8 +713,8 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         mHeaderHeight = mHeader != null ? mHeader.getMeasuredHeight() : 0;
         mFooterHeight = mFooter != null ? mFooter.getMeasuredHeight() : 0;
 
-        DebugLogger.d(TAG, "header height : " + mHeaderHeight);
-        DebugLogger.d(TAG, "footer height : " + mFooterHeight);
+//        DebugLogger.d(TAG, "header height : " + mHeaderHeight);
+//        DebugLogger.d(TAG, "footer height : " + mFooterHeight);
 
 //        setPadding(0, -mHeaderHeight, 0, -mFooterHeight);
 
@@ -919,21 +728,9 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 //        setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 
         if (mContent != null) {
-            /*
             LayoutParams params = (LayoutParams) mContent.getLayoutParams();
             params.height = h;
             mContent.setLayoutParams(params);
-            mContent.requestLayout();
-            */
-
-            LayoutParams params = (LayoutParams) mContentWrapper.getLayoutParams();
-            params.height = h;
-            mContentWrapper.setLayoutParams(params);
-            mContentWrapper.requestLayout();
-
-            FrameLayout.LayoutParams contentParams = (FrameLayout.LayoutParams) mContent.getLayoutParams();
-            contentParams.height = h;
-            mContent.setLayoutParams(contentParams);
             mContent.requestLayout();
         }
 
@@ -985,8 +782,50 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
                mFooterLayout.setState(PullToRefreshState.RESET);
             }
         }
+    }
 
+    /**
+     * 结束滑动，进行状态调整，如果刷新状态则进行刷新
+     */
+    private void finishNestedScroll() {
+        switch (mHeaderLayout.getState()) {
+            case PullToRefreshState.RELEASE_TO_REFRESH:
+                mHeaderLayout.setState(PullToRefreshState.REFRESHING);
 
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mOnRefreshListener != null)
+                            mOnRefreshListener.onPullDownToRefresh(PullToRefreshLayout.this);
+                    }
+                });
+                break;
+
+            case PullToRefreshState.PULL_TO_REFRESH:
+                mHeaderLayout.setState(PullToRefreshState.RESET);
+                break;
+        }
+
+        switch (mFooterLayout.getState()) {
+            case PullToRefreshState.RELEASE_TO_REFRESH:
+
+                mFooterLayout.setState(PullToRefreshState.REFRESHING);
+
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mOnRefreshListener != null)
+                            mOnRefreshListener.onPullUpToRefresh(PullToRefreshLayout.this);
+                    }
+                });
+                break;
+
+            case PullToRefreshState.PULL_TO_REFRESH:
+                mFooterLayout.setState(PullToRefreshState.RESET);
+                break;
+        }
+
+        resetLoadingLayout();
     }
 
     /**
@@ -1128,42 +967,74 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         setPullToRefreshState();
     }
 
-    void consumeHeaderScroll(int dy, int[] consumed, boolean damped) {
+    private int computeLoadingLayoutMoveDistance(int dy, int[] consumed, boolean damped) {
+        int moveDistance;
 
-        if (isPullRefreshEnabled()) {
-            int moveDistance;
-            if (damped) {
-                moveDistance = (int) (dy / DAMPING_FACTOR);
+        if (damped) {
+            float fMoveDistance = dy / DAMPING_FACTOR;
+            float absMoveDistance = Math.abs(fMoveDistance);
+
+            if (absMoveDistance >= 0 && absMoveDistance < 1.0f) {
+                if (dy > 0) {
+                    moveDistance = 1;
+                } else {
+                    moveDistance = -1;
+                }
             } else {
-                moveDistance = dy;
+                if (dy > 0) {
+                    moveDistance = (int) (fMoveDistance + 0.5f);
+                } else {
+                    moveDistance = (int) (fMoveDistance - 0.5f);
+                }
             }
-            if (moveDistance != 0)
-                moveHeader(moveDistance);
-            consumed[1] = moveDistance;
+        } else {
+            moveDistance = dy;
+        }
 
+        // 处理消耗，如果超过临界值，则那部分先分发给ParentView
+        int scrollY = getScrollYValue();
+
+        int result = moveDistance;
+
+        if (scrollY > 0) {
+            if ((scrollY + moveDistance) < 0) {
+                consumed[1] = - scrollY;
+                result = -scrollY;
+            } else {
+                consumed[1] = dy;
+            }
+        } else if (scrollY < 0) {
+            if ((scrollY + moveDistance) > 0) {
+                consumed[1] = -scrollY;
+                result = -scrollY;
+            } else {
+                consumed[1] = dy;
+            }
+        } else {
+            consumed[1] = dy;
+        }
+
+        return result;
+    }
+
+    void consumeHeaderScroll(int dy, int[] consumed, boolean damped) {
+        if (isPullRefreshEnabled() || getScrollYValue() > 0) {
+            int moveDistance = computeLoadingLayoutMoveDistance(dy, consumed, damped);
+            moveHeader(moveDistance);
             mIsBeginPulled = true;
         } else {
             consumed[1] = 0;
-
             mIsBeginPulled = false;
         }
     }
 
     void consumeFooterScroll(int dy, int[] consumed, boolean damped) {
-        if (isPullLoadEnabled()) {
-            int moveDistance;
-            if (damped) {
-                moveDistance = (int) (dy / DAMPING_FACTOR);
-            } else {
-                moveDistance = dy;
-            }
-            if (moveDistance != 0)
-                moveFooter(moveDistance);
-            consumed[1] = moveDistance;
+        if (isPullLoadEnabled() || getScrollYValue() < 0) {
+            int moveDistance = computeLoadingLayoutMoveDistance(dy, consumed, damped);
+            moveFooter(moveDistance);
             mIsBeginPulled = true;
         } else {
             consumed[1] = 0;
-            mIsBeginPulled = false;
         }
     }
 
@@ -1209,15 +1080,24 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
     void smoothScrollTo(int newScrollValue, long duration,
                         long delayMillis) {
+        smoothScrollTo(newScrollValue, duration, delayMillis, null);
+    }
+
+    void smoothScrollTo(int newScrollValue, long duration,
+                        long delayMillis, OnSmoothScrollFinishListener listener) {
         if (null != mSmoothScrollRunnable) {
             mSmoothScrollRunnable.stop();
         }
+
+        // 开始滑动
+        mIsBeginPulled = true;
 
         int oldScrollValue = getScrollY();
         boolean post = (oldScrollValue != newScrollValue);
         if (post) {
             mSmoothScrollRunnable = new SmoothScrollRunnable(oldScrollValue,
                     newScrollValue, duration);
+            mSmoothScrollRunnable.setFinishListener(listener);
         }
 
         if (post) {
@@ -1236,40 +1116,21 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     /**
      * 下拉刷新头部 重置到位置
      */
-    protected void resetHeaderAndFooterLayout() {
-
-        // FIXME 当刷新中时，滑动导致问题
-
-        DebugLogger.d("PullToRefreshLayout", "resetHeaderAndFooterLayout");
+    protected void resetLoadingLayout() {
+        DebugLogger.d("PullToRefreshLayout", "resetLoadingLayout");
 
         int scrollY = getScrollY();
 
         int headerState = mHeaderLayout.getState();
         int footerState = mFooterLayout.getState();
 
-        if (headerState == PullToRefreshState.REFRESHING && scrollY < 0 && Math.abs(scrollY) > mHeaderHeight) {
+        if (headerState == PullToRefreshState.REFRESHING && scrollY < 0 && Math.abs(scrollY) >= mHeaderHeight) {
             smoothScrollTo(-mHeaderHeight);
-        } else if (footerState == PullToRefreshState.REFRESHING && scrollY > 0 && scrollY > mFooterHeight) {
+        } else if (footerState == PullToRefreshState.REFRESHING && scrollY > 0 && scrollY >= mFooterHeight) {
             smoothScrollTo(mFooterHeight);
         } else {
-            if (scrollY != 0)
-                smoothScrollTo(0);
-        }
-
-        /*
-        if (refreshing && scrollY <= mHeaderHeight) {
-            smoothScrollTo(0);
-            return;
-        }
-        */
-
-        /*
-        if (refreshing) {
-            smoothScrollTo(-mHeaderHeight);
-        } else {
             smoothScrollTo(0);
         }
-        */
     }
 
     protected void onStateChanged(int oldState, int newState) {
@@ -1280,14 +1141,14 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         if (mHeaderLayout.getState() == PullToRefreshState.REFRESHING) {
             mHeaderLayout.setState(PullToRefreshState.RESET);
         }
-        resetHeaderAndFooterLayout();
+        resetLoadingLayout();
     }
 
     public void completePullUpRefresh() {
         if (mFooterLayout.getState() == PullToRefreshState.REFRESHING) {
             mFooterLayout.setState(PullToRefreshState.RESET);
         }
-        resetHeaderAndFooterLayout();
+        resetLoadingLayout();
     }
 
     public void completeRefresh() {
@@ -1299,7 +1160,40 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
             mFooterLayout.setState(PullToRefreshState.RESET);
         }
 
-        resetHeaderAndFooterLayout();
+        resetLoadingLayout();
+    }
+
+    public void doPullRefreshing(final boolean smoothScroll, final long delayMillis) {
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                int newScrollValue = -mHeaderHeight - 200;
+                int duration = smoothScroll ? SCROLL_DURATION : 0;
+                smoothScrollTo(newScrollValue, duration, 0, new OnSmoothScrollFinishListener() {
+                    @Override
+                    public void onSmoothScrollFinishListener() {
+                        if (mNestedScroll) {
+                            onStopNestedScroll(PullToRefreshLayout.this);
+                        } else {
+                            setPullToRefreshState();
+
+                            if (mIsHandledTouchEvent || mIsBeginPulled) {
+                                mIsHandledTouchEvent = false;
+                                mIsBeginPulled = false;
+                                finishNestedScroll();
+                            }
+                        }
+                    }
+                });
+            }
+        }, delayMillis);
+    }
+
+    /**
+     * 平滑滚动结束回调
+     */
+    private interface OnSmoothScrollFinishListener {
+        void onSmoothScrollFinishListener();
     }
 
     /**
@@ -1324,6 +1218,8 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         /** 当前Y */
         private int mCurrentY = -1;
 
+        private OnSmoothScrollFinishListener mFinishListener;
+
         /**
          * 构造方法
          *
@@ -1343,15 +1239,15 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
         @Override
         public void run() {
-            /**
-             * If the duration is 0, we scroll the view to target y directly.
-             */
+            // If the duration is 0, we scroll the view to target y directly.
             if (mDuration <= 0) {
                 scrollTo(0, mScrollToY);
+                if (mFinishListener != null)
+                    mFinishListener.onSmoothScrollFinishListener();
                 return;
             }
 
-            /**
+            /*
              * Only set mStartTime if this is the first time we're starting,
              * else actually calculate the Y delta
              */
@@ -1359,7 +1255,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
                 mStartTime = System.currentTimeMillis();
             } else {
 
-                /**
+                /*
                  * We do do all calculations in long to reduce software float
                  * calculations. We use 1000 as it gives us good accuracy and
                  * small rounding errors
@@ -1382,6 +1278,9 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
             if (mContinueRunning && mScrollToY != mCurrentY) {
                 postDelayed(this, 16);// SUPPRESS
                 // CHECKSTYLE
+            } else {
+                if (mFinishListener != null && mScrollToY == mCurrentY)
+                    mFinishListener.onSmoothScrollFinishListener();
             }
         }
 
@@ -1391,6 +1290,10 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         void stop() {
             mContinueRunning = false;
             removeCallbacks(this);
+        }
+
+        public void setFinishListener(OnSmoothScrollFinishListener finishListener) {
+            mFinishListener = finishListener;
         }
     }
 }

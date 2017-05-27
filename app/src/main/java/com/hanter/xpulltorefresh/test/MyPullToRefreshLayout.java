@@ -5,7 +5,7 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 
-import com.hanter.xpulltorefresh.XPullToRefreshLayout;
+import com.hanter.xpulltorefresh.PullToRefreshLayout;
 
 /**
  * 类名：MyPullToRefreshLayout <br/>
@@ -15,7 +15,7 @@ import com.hanter.xpulltorefresh.XPullToRefreshLayout;
  * @author hanter
  * @version 1.0
  */
-public class MyPullToRefreshLayout extends XPullToRefreshLayout {
+public class MyPullToRefreshLayout extends PullToRefreshLayout {
     public MyPullToRefreshLayout(Context context) {
         super(context);
     }

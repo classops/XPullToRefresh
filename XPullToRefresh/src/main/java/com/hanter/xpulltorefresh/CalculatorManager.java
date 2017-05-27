@@ -75,28 +75,8 @@ public class CalculatorManager {
         try {
             Type[] types = ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments();
             Class contentClass = (Class) types[0];
+            @SuppressWarnings("unchecked")
             Constructor<Calculator> cs = clazz.getConstructor(PullToRefreshLayout.class, contentClass);
-            result = cs.newInstance(layout, content);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            // InstantiationException
-        } catch (IllegalAccessException e) {
-            // IllegalAccessException
-        } catch (InvocationTargetException e) {
-            // InvocationTargetException
-        }
-
-        return result;
-    }
-
-    public static Calculator createCalculator(Class clazz, XPullToRefreshLayout layout, View content) {
-        Calculator result = null;
-
-        try {
-            Type[] types = ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments();
-            Class contentClass = (Class) types[0];
-            Constructor<Calculator> cs = clazz.getConstructor(XPullToRefreshLayout.class, contentClass);
             result = cs.newInstance(layout, content);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();

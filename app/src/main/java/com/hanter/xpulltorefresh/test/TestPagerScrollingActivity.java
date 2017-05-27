@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hanter.xpulltorefresh.PullToRefreshLayout;
 import com.hanter.xpulltorefresh.R;
 
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
@@ -52,12 +53,20 @@ public class TestPagerScrollingActivity extends AppCompatActivity {
 
     public static class TestFragment extends Fragment {
 
-
-
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.pager_test_scrolling, container, false);
+
+            View contentView = inflater.inflate(R.layout.pager_test_scrolling, container, false);
+
+            initViews(contentView);
+
+            return contentView;
+        }
+
+        private void initViews(View contentView) {
+            PullToRefreshLayout prl = (PullToRefreshLayout) contentView.findViewById(R.id.prl_content);
+            prl.setPullDownRefreshEnabled(false);
         }
     }
 

@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <com.hanter.xpulltorefresh.XPullToRefreshLayout
+        <com.hanter.xpulltorefresh.PullToRefreshLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/prl_content"
             android:layout_width="match_parent"
@@ -33,11 +33,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/text_margin"
-                    android:text="@string/large_text"/>
+                    android:text="@string/test_large_text"/>
 
             </android.support.v4.widget.NestedScrollView>
 
-        </com.hanter.xpulltorefresh.XPullToRefreshLayout>
+        </com.hanter.xpulltorefresh.PullToRefreshLayout>
 
         <TextView
             android:text="12121\n1212121\n2324asdfasd\nasdfjasdkjqpojfas\nasdjfa;skdfja;

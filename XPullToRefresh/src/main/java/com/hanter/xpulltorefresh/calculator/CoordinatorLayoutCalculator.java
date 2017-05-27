@@ -5,13 +5,13 @@ import android.support.design.widget.CoordinatorLayout;
 import android.util.Log;
 import android.view.View;
 
-import com.hanter.xpulltorefresh.XPullToRefreshLayout;
+import com.hanter.xpulltorefresh.PullToRefreshLayout;
 
 public class CoordinatorLayoutCalculator extends Calculator<CoordinatorLayout> {
 
     private AppBarStateChangeListener.State mAppBarState = AppBarStateChangeListener.State.IDLE;
 
-    public CoordinatorLayoutCalculator(XPullToRefreshLayout refreshLayout, CoordinatorLayout refreshableView) {
+    public CoordinatorLayoutCalculator(PullToRefreshLayout refreshLayout, CoordinatorLayout refreshableView) {
         super(refreshLayout, refreshableView);
 
         AppBarLayout appBarLayout = null;
