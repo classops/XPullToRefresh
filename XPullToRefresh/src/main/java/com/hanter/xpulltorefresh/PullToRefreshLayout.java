@@ -69,9 +69,9 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
     private boolean mResetTouch = false;
 
-    private boolean mPullDownRefreshEnabled = false; // 是否能下拉
-    private boolean mPullUpRefreshEnabled = true; // 是否能上拉
-    private boolean mScrollUpLoadEnabled = false; // 滚动加载
+    private boolean mPullDownRefreshEnabled = true; // 是否能下拉
+    private boolean mPullUpRefreshEnabled = false; // 是否能上拉
+    private boolean mScrollUpLoadEnabled = true; // 滚动加载
 
     private NestedScrollingParentHelper mParentHelper;
     private NestedScrollingChildHelper mChildHelper;
@@ -235,7 +235,6 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 //        footerParams.addRule(RelativeLayout.BELOW, mContentWrapper.getId());
         footerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
 //        mFooter.setLayoutParams(footerParams);
-
 
         LayoutParams contentParams = (LayoutParams) mContent.getLayoutParams();
         if (isInEditMode()) { // 布局编辑模式，默认只显示待刷新布局
@@ -419,14 +418,10 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
                             */
 
                         } else if (isPullLoadEnabled() && isTargetEnd()) {
-
                             DebugLogger.d("onInterceptTouchEvent", "b");
-
                             mIsHandledTouchEvent = (Math.abs(getScrollYValue()) > 0 || dy > 0.5f);
                         } else if (absDiff > mTouchSlop && isScrollLoadEnabled() && isTargetEnd()) {
-
                             DebugLogger.d("onInterceptTouchEvent", "c");
-
                             mIsHandledTouchEvent = (Math.abs(getScrollYValue()) > 0 || dy > 0.5f);
                         }
                     }
@@ -596,7 +591,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
         DebugLogger.e(TAG, "scrollY:" + getScrollYValue());
 
-        if (Math.abs(getScrollYValue()) >= mTouchSlop && dy <= mTouchSlop) { // 表示刷新消耗了事件，先把刷新布局复位
+        if (Math.abs(getScrollYValue()) > 0) { // 表示刷新消耗了事件，先把刷新布局复位
             nestedPreScroll(target, dx, dy, consumed);
         }
 
@@ -871,7 +866,6 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     boolean isPullLoadEnabled() {
         return mPullUpRefreshEnabled && mFooter != null;
     }
-
     boolean isScrollLoadEnabled() {
         return mScrollUpLoadEnabled && mFooter != null;
     }
@@ -1033,8 +1027,42 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
             int moveDistance = computeLoadingLayoutMoveDistance(dy, consumed, damped);
             moveFooter(moveDistance);
             mIsBeginPulled = true;
+        } else if (isScrollLoadEnabled()) { // TODO 添加滚动加载
+            if (doLoading(dy)) {
+                consumed[1] = dy;
+            } else {
+                consumed[1] = 0;
+            }
         } else {
             consumed[1] = 0;
+        }
+    }
+
+    private boolean doLoading(int dy) {
+        boolean result = false;
+
+        int direction = parseScrollDirection(dy);
+
+        if (direction == ScrollDirection.SCROLL_UP ||
+                Math.abs(dy) > mTouchSlop) {
+            startLoading();
+            result = true;
+        }
+
+        return result;
+    }
+
+    private void startLoading() {
+        if (mFooterLayout.getState() != PullToRefreshState.REFRESHING) {
+            mFooterLayout.setState(PullToRefreshState.REFRESHING);
+            if (null != mOnRefreshListener) {
+                postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mOnRefreshListener.onPullUpToRefresh(PullToRefreshLayout.this);
+                    }
+                }, SCROLL_DURATION);
+            }
         }
     }
 

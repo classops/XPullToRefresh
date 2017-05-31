@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.hanter.xpulltorefresh.DebugLogger;
 import com.hanter.xpulltorefresh.PullToRefreshLayout;
@@ -18,6 +19,8 @@ public class TestRecyclerViewRefreshActivity extends AppCompatActivity {
     PullToRefreshLayout refresh;
     RecyclerView rlvContent;
 
+    Adapter mAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +28,8 @@ public class TestRecyclerViewRefreshActivity extends AppCompatActivity {
 
         rlvContent = (RecyclerView) findViewById(R.id.rlv_content);
         rlvContent.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        rlvContent.setAdapter(new Adapter(this));
+        mAdapter = new Adapter(this);
+        rlvContent.setAdapter(mAdapter);
 
         refresh = (PullToRefreshLayout) findViewById(R.id.refresh);
         refresh.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -46,7 +50,10 @@ public class TestRecyclerViewRefreshActivity extends AppCompatActivity {
 
             @Override
             public void onPullUpToRefresh(PullToRefreshLayout refreshView) {
-//                Toast.makeText(MainActivity.this, "上拉刷新", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(TestRecyclerViewRefreshActivity.this, "上拉刷新", Toast.LENGTH_SHORT).show();
+
+                mAdapter.mPullLoad = true;
+                mAdapter.notifyDataSetChanged();
 
                 DebugLogger.d("onPullUpToRefresh", "上拉刷新");
 
@@ -54,41 +61,80 @@ public class TestRecyclerViewRefreshActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         refresh.completePullUpRefresh();
+
+                        mAdapter.mPullLoad = false;
+                        mAdapter.add();
+                        mAdapter.notifyDataSetChanged();
+
+                        DebugLogger.d("onPullUpToRefresh", "上拉刷新完成");
                     }
-                }, 10000);
+                }, 4000);
             }
         });
 
-        refresh.doPullRefreshing(true, 1000);
+//        refresh.doPullRefreshing(true, 1000);
     }
 
-    public static class Adapter extends RecyclerView.Adapter<ViewHolder> {
+    public static class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         public Adapter(Context context) {
             this.mContext = context;
         }
 
         private Context mContext;
+        private boolean mPullLoad = false;
+
+        private int mCount = 10;
 
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycler_view, parent, false));
+        public int getItemViewType(int position) {
+            if (mPullLoad && position == mCount) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            if (viewType == 0) {
+                return new ItemViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycler_view, parent, false));
+            } else {
+                return new MoreDataViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycler_more, parent, false));
+            }
+
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         }
 
         @Override
         public int getItemCount() {
-            return 10;
+            if (mPullLoad) {
+                return mCount + 1;
+            } else {
+                return mCount;
+            }
+        }
+
+        public void add() {
+            mCount += 5;
         }
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ItemViewHolder extends RecyclerView.ViewHolder {
 
-        public ViewHolder(View itemView) {
+        public ItemViewHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    static class MoreDataViewHolder extends RecyclerView.ViewHolder {
+
+        public MoreDataViewHolder(View itemView) {
             super(itemView);
         }
     }

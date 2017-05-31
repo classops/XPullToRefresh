@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.hanter.xpulltorefresh.DebugLogger;
 import com.hanter.xpulltorefresh.PullToRefreshLayout;
@@ -45,7 +46,7 @@ public class ListViewRefreshActivity extends AppCompatActivity {
 
             @Override
             public void onPullUpToRefresh(PullToRefreshLayout refreshView) {
-//                Toast.makeText(MainActivity.this, "上拉刷新", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ListViewRefreshActivity.this, "上拉刷新", Toast.LENGTH_SHORT).show();
 
                 DebugLogger.d("onPullUpToRefresh", "上拉刷新");
 
