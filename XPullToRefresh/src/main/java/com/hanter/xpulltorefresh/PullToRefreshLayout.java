@@ -70,8 +70,8 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     private boolean mResetTouch = false;
 
     private boolean mPullDownRefreshEnabled = true; // 是否能下拉
-    private boolean mPullUpRefreshEnabled = false; // 是否能上拉
-    private boolean mScrollUpLoadEnabled = true; // 滚动加载
+    private boolean mPullUpRefreshEnabled = true; // 是否能上拉
+    private boolean mScrollUpLoadEnabled = false; // 滚动加载
 
     private NestedScrollingParentHelper mParentHelper;
     private NestedScrollingChildHelper mChildHelper;
@@ -1027,7 +1027,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
             int moveDistance = computeLoadingLayoutMoveDistance(dy, consumed, damped);
             moveFooter(moveDistance);
             mIsBeginPulled = true;
-        } else if (isScrollLoadEnabled()) { // TODO 添加滚动加载
+        } else if (isScrollLoadEnabled()) { // TODO 添加滚动加载更多
             if (doLoading(dy)) {
                 consumed[1] = dy;
             } else {
