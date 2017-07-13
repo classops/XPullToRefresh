@@ -62,7 +62,7 @@ refresh.setPullUpRefreshEnabled(false);
 
 嵌套在CoodinatorLayout协调滑动：
 
-![防止冲突](/screenshots/Gif_20170712_143625.gif)
+![防止冲突](/screenshots/screenshots1.gif)
 
 
 
