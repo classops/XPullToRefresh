@@ -205,36 +205,16 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     }
 
     private void addHeaderAndFooter(Context context) {
-//        addViewInternal(mHeader, 0, new LayoutParams(LayoutParams.MATCH_PARENT,
-//                LayoutParams.WRAP_CONTENT));
-
         if (mAdded)
             return;
 
-//        RelativeLayout.LayoutParams headerParams = (LayoutParams) mHeader.getLayoutParams();
-
-
-//        RelativeLayout.LayoutParams headerParams = new RelativeLayout
-//                .LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-//        headerParams.addRule(RelativeLayout.ABOVE, R.id.xpull_to_refresh_content_wrapper);
         addViewInternal(mHeader, 0);
         LayoutParams headerParams = (LayoutParams) mHeader.getLayoutParams();
-//        headerParams.addRule(RelativeLayout.ABOVE, mContentWrapper.getId());
         headerParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-//        mHeader.setLayoutParams(headerParams);
-
-
-//        RelativeLayout.LayoutParams footerParams = (LayoutParams) mFooter.getLayoutParams();
-//        RelativeLayout.LayoutParams footerParams = new RelativeLayout
-//                .LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-//        headerParams.addRule(RelativeLayout.BELOW, R.id.xpull_to_refresh_content_wrapper);
-//        addViewInternal(mFooter, -1, footerParams);
 
         addViewInternal(mFooter, -1);
         LayoutParams footerParams = (LayoutParams) mFooter.getLayoutParams();
-//        footerParams.addRule(RelativeLayout.BELOW, mContentWrapper.getId());
         footerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-//        mFooter.setLayoutParams(footerParams);
 
         LayoutParams contentParams = (LayoutParams) mContent.getLayoutParams();
         if (isInEditMode()) { // 布局编辑模式，默认只显示待刷新布局
@@ -275,7 +255,6 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     @Override
     public void addView(View child, ViewGroup.LayoutParams params) {
         addView(child, -1, params);
-//        mContentWrapper.addView(child, params);
     }
 
     @Override
@@ -483,14 +462,6 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
                             mIsHandledTouchEvent = true;
                             handled = true;
-
-//                            if (getScrollYValue() == 0) {
-//                                mIsHandledTouchEvent = false;
-//                                handled = false;
-//                                mResetTouch = true;
-//                            } else {
-//                                handled = true;
-//                            }
 
                             DebugLogger.d("onTouchEvent", "ACTION_MOVE 1 mIsHandledTouchEvent:"
                                     + true + ", dy:" + dy);
@@ -708,19 +679,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         mHeaderHeight = mHeader != null ? mHeader.getMeasuredHeight() : 0;
         mFooterHeight = mFooter != null ? mFooter.getMeasuredHeight() : 0;
 
-//        DebugLogger.d(TAG, "header height : " + mHeaderHeight);
-//        DebugLogger.d(TAG, "footer height : " + mFooterHeight);
-
-//        setPadding(0, -mHeaderHeight, 0, -mFooterHeight);
-
         setPaddingInternal(0, -mHeaderHeight, 0, -mFooterHeight);
-
-
-//        int paddingLeft = getPaddingLeft();
-//        int paddingRight = getPaddingRight();
-//        int paddingTop = getPaddingTop() - mHeaderHeight;
-//        int paddingBottom = getPaddingBottom() - mFooterHeight;
-//        setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 
         if (mContent != null) {
             LayoutParams params = (LayoutParams) mContent.getLayoutParams();

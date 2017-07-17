@@ -2,7 +2,6 @@
 
 兼容NestedScroll的下拉刷新控件。可以使用ScrollView,ListView,WebView，RecyclerView，实现NestedScrollChild的View。
 
-
 ## 使用方法
 
 - 使用下拉刷新，只需要把要刷新布局嵌套在 PullToRefreshLayout里。
@@ -62,7 +61,7 @@ refresh.setPullUpRefreshEnabled(false);
 
 嵌套在CoodinatorLayout协调滑动：
 
-![防止冲突](/screenshots/screenshots1.gif)
+![滑动](/screenshots/screenshots1.gif)
 
 
 
