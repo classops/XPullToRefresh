@@ -29,7 +29,8 @@ import com.hanter.xpulltorefresh.calculator.Calculator;
  * @author wangmingshuo
  * @version 1.0
  */
-public class PullToRefreshLayout extends RelativeLayout implements NestedScrollingParent {
+public class PullToRefreshLayout extends RelativeLayout implements NestedScrollingParent,
+        NestedScrollingChild {
 
     private static final String TAG = "PullToRefreshLayout";
 
