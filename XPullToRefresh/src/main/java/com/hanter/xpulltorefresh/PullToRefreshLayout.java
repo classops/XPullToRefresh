@@ -209,10 +209,12 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         if (mAdded)
             return;
 
+        mHeader.setVisibility(View.INVISIBLE);
         addViewInternal(mHeader, 0);
         LayoutParams headerParams = (LayoutParams) mHeader.getLayoutParams();
         headerParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
 
+        mFooter.setVisibility(View.INVISIBLE);
         addViewInternal(mFooter, -1);
         LayoutParams footerParams = (LayoutParams) mFooter.getLayoutParams();
         footerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
@@ -226,12 +228,17 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
             contentParams.addRule(RelativeLayout.ABOVE, mFooter.getId());
         }
 
+        // 此时获取的值为0，可能因为尚未刷新布局，而在onSizeChanged里获取则正确
+        /*
         mHeaderHeight = mHeader != null ? mHeader.getMeasuredHeight() : 0;
         mFooterHeight = mFooter != null ? mFooter.getMeasuredHeight() : 0;
 
         int paddingTop = - mHeaderHeight;
         int paddingBottom = - mFooterHeight;
         setPaddingInternal(0, paddingTop, 0, paddingBottom);
+        */
+
+        mAdded = true;
     }
 
     public int getPaddingTopInternal() {
@@ -686,13 +693,14 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
             LayoutParams params = (LayoutParams) mContent.getLayoutParams();
             params.height = h;
             mContent.setLayoutParams(params);
-            mContent.requestLayout();
         }
 
         post(new Runnable() {
             @Override
             public void run() {
                 requestLayout();
+                mFooter.setVisibility(View.VISIBLE);
+                mHeader.setVisibility(View.VISIBLE);
             }
         });
     }
