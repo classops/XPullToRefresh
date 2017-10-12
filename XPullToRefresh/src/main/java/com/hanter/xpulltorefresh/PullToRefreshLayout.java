@@ -21,6 +21,9 @@ import android.widget.RelativeLayout;
 
 import com.hanter.xpulltorefresh.calculator.Calculator;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * 类名：PullToRefreshLayout <br/>
  * 描述：Nested下拉刷新 <br/>
@@ -84,15 +87,33 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
     private Calculator mRefreshStateCalculator;
 
+    private boolean mAttached;
+
     private SmoothScrollRunnable mSmoothScrollRunnable;
+
+    private Runnable mPullDownRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mOnRefreshListener != null && mAttached)
+                mOnRefreshListener.onPullDownToRefresh(PullToRefreshLayout.this);
+        }
+    };
+
+    private Runnable mPullUpRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mOnRefreshListener != null && mAttached)
+                mOnRefreshListener.onPullUpToRefresh(PullToRefreshLayout.this);
+        }
+    };
 
     /**
      * 滚动方向
      */
-    static class ScrollDirection {
-        public static final int SCROLL_NONE = 0;
-        public static final int SCROLL_UP = 1;
-        public static final int SCROLL_DOWN = 2;
+    private static class ScrollDirection {
+        static final int SCROLL_NONE = 0;
+        static final int SCROLL_UP = 1;
+        static final int SCROLL_DOWN = 2;
     }
 
     public interface OnRefreshListener {
@@ -154,7 +175,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         mHeader = mHeaderLayout.getLoadingView();
         mFooter = mFooterLayout.getLoadingView();
 
-//        addHeaderAndFooter(context);
+        // addHeaderAndFooter(context);
     }
 
     private void createScrollCalculator() {
@@ -229,14 +250,12 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         }
 
         // 此时获取的值为0，可能因为尚未刷新布局，而在onSizeChanged里获取则正确
-        /*
         mHeaderHeight = mHeader != null ? mHeader.getMeasuredHeight() : 0;
         mFooterHeight = mFooter != null ? mFooter.getMeasuredHeight() : 0;
 
         int paddingTop = - mHeaderHeight;
         int paddingBottom = - mFooterHeight;
         setPaddingInternal(0, paddingTop, 0, paddingBottom);
-        */
 
         mAdded = true;
     }
@@ -326,6 +345,13 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
     public void addViewInternal(View child, int index, ViewGroup.LayoutParams params) {
         super.addView(child, index, params);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        mAttached = true;
     }
 
     @Override
@@ -755,13 +781,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
             case PullToRefreshState.RELEASE_TO_REFRESH:
                 mHeaderLayout.setState(PullToRefreshState.REFRESHING);
 
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mOnRefreshListener != null)
-                            mOnRefreshListener.onPullDownToRefresh(PullToRefreshLayout.this);
-                    }
-                });
+                post(mPullDownRunnable);
                 break;
 
             case PullToRefreshState.PULL_TO_REFRESH:
@@ -774,13 +794,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
 
                 mFooterLayout.setState(PullToRefreshState.REFRESHING);
 
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mOnRefreshListener != null)
-                            mOnRefreshListener.onPullUpToRefresh(PullToRefreshLayout.this);
-                    }
-                });
+                post(mPullUpRunnable);
                 break;
 
             case PullToRefreshState.PULL_TO_REFRESH:
@@ -1159,30 +1173,51 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
         resetLoadingLayout();
     }
 
+    private final List<Runnable> mPullRefreshingRunnableList = new LinkedList<>();
+
     public void doPullRefreshing(final boolean smoothScroll, final long delayMillis) {
-        postDelayed(new Runnable() {
+        Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                int newScrollValue = -mHeaderHeight - 200;
-                int duration = smoothScroll ? SCROLL_DURATION : 0;
-                smoothScrollTo(newScrollValue, duration, 0, new OnSmoothScrollFinishListener() {
-                    @Override
-                    public void onSmoothScrollFinishListener() {
-                        if (mNestedScroll) {
-                            onStopNestedScroll(PullToRefreshLayout.this);
-                        } else {
-                            setPullToRefreshState();
+                mPullRefreshingRunnableList.remove(this);
 
-                            if (mIsHandledTouchEvent || mIsBeginPulled) {
-                                mIsHandledTouchEvent = false;
-                                mIsBeginPulled = false;
-                                finishNestedScroll();
+                if (mAttached) {
+                    int newScrollValue = -mHeaderHeight - mTouchSlop;
+                    int duration = smoothScroll ? SCROLL_DURATION : 0;
+                    smoothScrollTo(newScrollValue, duration, 0, new OnSmoothScrollFinishListener() {
+                        @Override
+                        public void onSmoothScrollFinishListener() {
+                            if (mNestedScroll) {
+                                onStopNestedScroll(PullToRefreshLayout.this);
+                            } else {
+                                setPullToRefreshState();
+
+                                if (mIsHandledTouchEvent || mIsBeginPulled) {
+                                    mIsHandledTouchEvent = false;
+                                    mIsBeginPulled = false;
+                                    finishNestedScroll();
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
-        }, delayMillis);
+        };
+        mPullRefreshingRunnableList.add(runnable);
+        postDelayed(runnable, delayMillis);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mAttached = true;
+
+        removeCallbacks(mSmoothScrollRunnable);
+        for (Runnable runnable : mPullRefreshingRunnableList) {
+            removeCallbacks(runnable);
+        }
+        removeCallbacks(mPullDownRunnable);
+        removeCallbacks(mPullUpRunnable);
     }
 
     /**
