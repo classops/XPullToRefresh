@@ -1,1 +1,1 @@
-include ':app', ':XPullToRefresh'
+include ':app', ':library'

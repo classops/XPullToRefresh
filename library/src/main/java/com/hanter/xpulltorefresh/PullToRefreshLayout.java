@@ -3,6 +3,7 @@ package com.hanter.xpulltorefresh;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Px;
 import android.support.annotation.RequiresApi;
 import android.support.v4.view.NestedScrollingChild;
@@ -532,13 +533,13 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     // nested parent
 
     @Override
-    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
+    public boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int nestedScrollAxes) {
         DebugLogger.d(TAG, "onStartNestedScroll" + " child scrollY " + target.getScrollY());
         return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0 && isEnabled();
     }
 
     @Override
-    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
+    public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int nestedScrollAxes) {
         DebugLogger.d(TAG, "onNestedScrollAccepted");
 
         if (ViewCompat.SCROLL_AXIS_VERTICAL == nestedScrollAxes)
@@ -548,7 +549,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     }
 
     @Override
-    public void onStopNestedScroll(View target) {
+    public void onStopNestedScroll(@NonNull View target) {
         DebugLogger.d(TAG, "onStopNestedScroll");
 
         mParentHelper.onStopNestedScroll(target);
@@ -567,7 +568,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     }
 
     @Override
-    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+    public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
         DebugLogger.d(TAG, "onNestedScroll" + " dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
 
         if (mIsBeginPulled) { // 不处理 未消耗的部分
@@ -593,14 +594,14 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     }
 
     @Override
-    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
         DebugLogger.e(TAG, "scrollY:" + getScrollYValue());
 
         if (Math.abs(getScrollYValue()) > 0) { // 表示刷新消耗了事件，先把刷新布局复位
             nestedPreScroll(target, dx, dy, consumed);
         }
 
-        // 分发 onNestedPreScroll 事件给父View, offsetInWindow 传入 null FIXME ???
+        // 分发 onNestedPreScroll 事件给父View, offsetInWindow 传入 null
         // Now let our nested parent consume the leftovers
         mParentScrollConsumed[1] = mParentScrollConsumed[0] = 0;
         final int[] parentConsumed = mParentScrollConsumed;
@@ -627,7 +628,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     }
 
     @Override
-    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
+    public boolean onNestedFling(@NonNull View target, float velocityX, float velocityY, boolean consumed) {
         DebugLogger.d(TAG, "onNestedFling");
         // 分发 nestedFling
 //        return dispatchNestedFling(velocityX, velocityY, consumed);
@@ -636,7 +637,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     }
 
     @Override
-    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+    public boolean onNestedPreFling(@NonNull View target, float velocityX, float velocityY) {
         DebugLogger.d(TAG, "onNestedPreFling");
         // 分发 nestedPreFling
 //        return dispatchNestedPreFling(velocityX, velocityY);
@@ -848,6 +849,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
     boolean isPullLoadEnabled() {
         return mPullUpRefreshEnabled && mFooter != null;
     }
+
     boolean isScrollLoadEnabled() {
         return mScrollUpLoadEnabled && mFooter != null;
     }
@@ -1009,7 +1011,7 @@ public class PullToRefreshLayout extends RelativeLayout implements NestedScrolli
             int moveDistance = computeLoadingLayoutMoveDistance(dy, consumed, damped);
             moveFooter(moveDistance);
             mIsBeginPulled = true;
-        } else if (isScrollLoadEnabled()) { // TODO 添加滚动加载更多
+        } else if (isScrollLoadEnabled()) { // 添加滚动加载更多
             if (doLoading(dy)) {
                 consumed[1] = dy;
             } else {

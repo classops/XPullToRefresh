@@ -7,8 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.goldenhanter.testglide.xpulltorefresh.R;
-
 /**
  * 类名：FooterLoadingLayout <br/>
  * 描述：用于上拉刷新的头部
@@ -30,8 +28,8 @@ public class FooterLoadingLayout extends LoadingLayout {
     }
 
     private void initViews() {
-        mProgressBar = (ProgressBar) mLoadingView.findViewById(R.id.pull_to_load_footer_progressbar);
-        mHintView = (TextView) mLoadingView.findViewById(R.id.pull_to_load_footer_hint_textview);
+        mProgressBar = mLoadingView.findViewById(R.id.pull_to_load_footer_progressbar);
+        mHintView = mLoadingView.findViewById(R.id.pull_to_load_footer_hint_textview);
     }
 
     @Override

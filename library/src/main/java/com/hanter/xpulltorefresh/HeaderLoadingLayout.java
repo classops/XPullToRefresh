@@ -11,8 +11,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.goldenhanter.testglide.xpulltorefresh.R;
-
 /**
  * 类名：HeaderLoadingLayout <br/>
  * 描述：下拉刷新所使用布局
@@ -25,9 +23,9 @@ public class HeaderLoadingLayout extends LoadingLayout {
 
     /** 旋转动画时间 */
     private static final int ROTATE_ANIM_DURATION = 150;
-    /**Header的容器*/
+    /** Header的容器 */
     private RelativeLayout mHeaderContainer;
-    /**箭头图片*/
+    /** 箭头图片 */
     private ImageView mArrowImageView;
     /**进度条*/
     private ProgressBar mProgressBar;
@@ -45,10 +43,10 @@ public class HeaderLoadingLayout extends LoadingLayout {
     }
 
     private void initViews() {
-        mHeaderContainer = (RelativeLayout) mLoadingView.findViewById(R.id.pull_to_refresh_header_content);
-        mArrowImageView = (ImageView) mLoadingView.findViewById(R.id.pull_to_refresh_header_arrow);
-        mHintTextView = (TextView) mLoadingView.findViewById(R.id.pull_to_refresh_header_hint_textview);
-        mProgressBar = (ProgressBar) mLoadingView.findViewById(R.id.pull_to_refresh_header_progressbar);
+        mHeaderContainer = mLoadingView.findViewById(R.id.pull_to_refresh_header_content);
+        mArrowImageView = mLoadingView.findViewById(R.id.pull_to_refresh_header_arrow);
+        mHintTextView = mLoadingView.findViewById(R.id.pull_to_refresh_header_hint_textview);
+        mProgressBar = mLoadingView.findViewById(R.id.pull_to_refresh_header_progressbar);
 
         float pivotValue = 0.5f;    // SUPPRESS CHECKSTYLE
         float toDegree = -180f;     // SUPPRESS CHECKSTYLE
@@ -98,17 +96,15 @@ public class HeaderLoadingLayout extends LoadingLayout {
 
     @Override
     protected void onReset() {
-        mArrowImageView.setVisibility(View.VISIBLE);
         mProgressBar.setVisibility(View.INVISIBLE);
         mArrowImageView.clearAnimation();
+        mArrowImageView.setVisibility(View.VISIBLE);
         mHintTextView.setText(R.string.pull_to_refresh_header_hint_normal);
     }
 
     @Override
     protected void onPullToRefresh() {
-
         DebugLogger.d("HeaderLoadingLayout", "state - " +  mPreviousState);
-
         if (PullToRefreshState.RELEASE_TO_REFRESH == mPreviousState) {
             mArrowImageView.clearAnimation();
             mArrowImageView.startAnimation(mRotateDownAnim);
