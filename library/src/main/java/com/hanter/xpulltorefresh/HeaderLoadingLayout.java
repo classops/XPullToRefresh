@@ -11,6 +11,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.hanter.android.xpulltorefresh.R;
+
 /**
  * 类名：HeaderLoadingLayout <br/>
  * 描述：下拉刷新所使用布局

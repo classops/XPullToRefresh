@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.hanter.android.xpulltorefresh.R;
+
 /**
  * 类名：FooterLoadingLayout <br/>
  * 描述：用于上拉刷新的头部
