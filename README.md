@@ -4,6 +4,25 @@
 
 ## 使用方法
 
+### 添加依赖
+
+1. 添加仓库到根build.gradle文件
+``` gradle
+    allprojects {
+        repositories {
+            ...
+            maven { url 'https://jitpack.io' }
+        }
+    }
+```
+2. 添加库依赖
+``` gradle
+    dependencies {
+        implementation 'com.github.wangmingshuo:XPullToRefresh:Tag'
+    }
+````
+
+
 - 使用下拉刷新，只需要把要刷新布局嵌套在 PullToRefreshLayout里。
 
 ```
