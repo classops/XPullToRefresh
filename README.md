@@ -18,7 +18,7 @@
 2. 添加库依赖
 ``` gradle
     dependencies {
-        implementation 'com.github.wangmingshuo:XPullToRefresh:Tag'
+        implementation 'com.github.wangmingshuo:XPullToRefresh:1.0.3'
     }
 ````
 
